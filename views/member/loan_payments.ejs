@@ -1,0 +1,12 @@
+<form action="/api/payments/manual" method="POST">
+  <input type="text" name="cb_number" required>
+  <input type="text" name="loan_type" required>
+  <input type="number" name="amount" required>
+  <select name="payment_type">
+    <option value="GCash">GCash</option>
+    <option value="Stripe">Stripe</option>
+    <option value="BankTransfer">Bank Transfer</option>
+  </select>
+  <input type="date" name="payment_date" required>
+  <button type="submit">Submit Payment</button>
+</form>

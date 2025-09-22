@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Sidebar styles from your provided code */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #2c3e50;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            justify-content: space-between;
+            padding-bottom: 20px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .sidebar .logo {
+            text-align: center;
+            padding: 25px 0;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #34495e;
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .nav {
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+        .nav-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            color: #fff;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background-color: #34495e;
+            transform: translateX(5px);
+        }
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 20px;
+            color: #ecf0f1;
+        }
+        .dropdown {
+            display: none;
+            flex-direction: column;
+            background-color: #34495e;
+            margin-left: 10px;
+            border-left: 2px solid #2c3e50;
+        }
+        .dropdown .nav-item {
+            padding-left: 40px;
+            background-color: #2c3e50;
+        }
+        .dropdown .nav-item:hover {
+            background-color: #34495e;
+        }
+        .nav-bottom {
+            margin-top: auto;
+        }
+        .chevron {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+        .nav-item.active .chevron {
+            transform: rotate(180deg);
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative !important;
+                width: 100%;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+        /* Additional styles for the reports page */
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: #f4f6f9;
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        .date-picker {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height"16" viewBox="0 0 24 24"><path fill="%23333" d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
+            background-color: #fff;
+        }
+        
+        /* Signature panel styles */
+        .signature-panel {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border: 1px dashed #d1d5db;
+        }
+        .signature-box {
+            width: 45%;
+            padding: 15px;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            margin: 40px 0 10px 0;
+            padding-top: 10px;
+        }
+        .editable-field {
+            border-bottom: 1px dashed #4b5563;
+            min-width: 200px;
+            display: inline-block;
+            padding: 4px 8px;
+            margin: 5px 0;
+        }
+        .editable-field:focus {
+            outline: none;
+            background-color: #f3f4f6;
+            border-bottom: 2px solid #3b82f6;
+        }
+        
+        /* Print-specific styles */
+        @media print {
+            .sidebar, .no-print, .bg-white.shadow-md.rounded-lg.p-6.mb-6 {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                background-color: white !important;
+                width: 100% !important;
+            }
+            .container.mx-auto {
+                width: 100% !important;
+                max-width: none !important;
+            }
+            body, html {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            h1.text-2xl.font-bold.mb-6 {
+                text-align: center;
+                margin-bottom: 20px !important;
+                font-size: 24px !important;
+            }
+            h2.text-xl.font-semibold {
+                text-align: center;
+                margin-bottom: 15px !important;
+                font-size: 20px !important;
+            }
+            .bg-white.shadow-md.rounded-lg.p-6 {
+                box-shadow: none !important;
+                padding: 0 !important;
+                background-color: white !important;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                font-size: 12px !important;
+            }
+            th, td {
+                padding: 6px !important;
+                border: 1px solid #ddd !important;
+            }
+            th {
+                background-color: #f8f8f8 !important;
+            }
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+            .print-footer {
+                display: block !important;
+                text-align: center;
+                margin-top: 30px;
+                border-top: 1px solid #ddd;
+                padding-top: 10px;
+                font-size: 12px;
+            }
+            .signature-panel {
+                display: flex !important;
+                justify-content: space-between;
+                margin-top: 50px;
+                border: none !important;
+                background-color: transparent !important;
+                padding: 0 !important;
+            }
+            .signature-box {
+                width: 45%;
+                border-top: 1px solid #000;
+                padding-top: 50px;
+                text-align: center;
+            }
+            .editable-field {
+                border-bottom: 1px dashed #4b5563;
+                min-width: 200px;
+            }
+        }
+        .print-header, .print-footer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Partial -->
+    <%- include('../partials/adminsidebar') %>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold mb-6"><%= title %></h1>
+
+            <!-- Print Header (only shows when printing) -->
+            <div class="print-header">
+                <h1>Loan Management System</h1>
+                <h2>Financial Reports</h2>
+                <p>Generated on: <span id="print-date"></span></p>
+            </div>
+
+            <!-- Error Message -->
+            <% if (error) { %>
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                    <p><%= error %></p>
+                </div>
+            <% } %>
+
+            <!-- Report Form -->
+            <form action="/admin/reports/generate" method="POST" class="bg-white shadow-md rounded-lg p-6 mb-6 no-print">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="reportType" class="block text-sm font-medium text-gray-700">Report Type</label>
+                        <select id="reportType" name="reportType" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 date-picker">
+                            <option value="" disabled <%= !reportType ? 'selected' : '' %>>Select Report Type</option>
+                            <option value="salary" <%= reportType === 'salary' ? 'selected' : '' %>>Bonus/Salary Loan</option>
+                            <option value="agricultural" <%= reportType === 'agricultural' ? 'selected' : '' %>>Regular/Agricultural Loan</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="startDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                        <input type="date" id="startDate" name="startDate" value="<%= startDate || '' %>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 date-picker">
+                    </div>
+                    <div>
+                        <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                        <input type="date" id="endDate" name="endDate" value="<%= endDate || '' %>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 date-picker">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Generate Report
+                    </button>
+                </div>
+            </form>
+
+            <!-- Report Results -->
+            <% if (reports && reports.length > 0) { %>
+                <div class="bg-white shadow-md rounded-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">
+                            <%= reportType === 'salary' ? 'Salary Loan Reports' : 'Agricultural Loan Reports' %>
+                            (<%= startDate %> to <%= endDate %>)
+                        </h2>
+                        <div>
+                            <a href="/admin/reports/export?reportType=<%= reportType %>&startDate=<%= startDate %>&endDate=<%= endDate %>" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 mr-2 no-print">
+                                <i class="fas fa-download mr-2"></i> Export to CSV
+                            </a>
+                            <button onclick="printReport()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 no-print">
+                                <i class="fas fa-print mr-2"></i> Print Report
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CB Number</th>
+                                    <% if (reportType === 'salary') { %>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loan Type</th>
+                                    <% } else { %>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Property Value</th>
+                                    <% } %>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Loan Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Service Fee</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Processing Fee</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Deductions</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Take Home Amount</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction Date</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                <% reports.forEach(report => { %>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= report.cb_number %></td>
+                                        <% if (reportType === 'salary') { %>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= report.loan_type %></td>
+                                        <% } else { %>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= report.property_value ? '₱' + report.property_value.toLocaleString('en-US') : 'N/A' %></td>
+                                        <% } %>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱<%= report.loan_amount.toLocaleString('en-US') %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱<%= report.service_fee.toLocaleString('en-US') %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱<%= report.processing_fee.toLocaleString('en-US') %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱<%= report.total_deductions.toLocaleString('en-US') %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₱<%= report.take_home_amount.toLocaleString('en-US') %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= new Date(report.transaction_date).toLocaleDateString() %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Signature Panel (visible on screen and when printing) -->
+                <div class="signature-panel">
+                    <div class="signature-box">
+                        <p class="font-semibold">Prepared by:</p>
+                        <div class="signature-line"></div>
+                        <div class="mt-2">
+                            <p>Name: <span class="editable-field" contenteditable="true" id="prepared-by-name">Type name here</span></p>
+                            <p class="mt-2">Date: <span class="editable-field" contenteditable="true" id="prepared-by-date">Type date here</span></p>
+                        </div>
+                    </div>
+                    <div class="signature-box">
+                        <p class="font-semibold">Verified by:</p>
+                        <div class="signature-line"></div>
+                        <div class="mt-2">
+                            <p>Name: <span class="editable-field" contenteditable="true" id="verified-by-name">Type name here</span></p>
+                            <p class="mt-2">Date: <span class="editable-field" contenteditable="true" id="verified-by-date">Type date here</span></p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Print Footer (only shows when printing) -->
+            <div class="print-footer">
+                <p>Loan Management System - Confidential Report</p>
+                <p>Page <span class="page-number"></span> of <span class="page-total"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown(clickedItem, dropdownId) {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                if (dropdown.id !== dropdownId) {
+                    dropdown.style.display = 'none';
+                    const parent = dropdown.previousElementSibling;
+                    if (parent) parent.classList.remove('active');
+                }
+            });
+            const dropdown = document.getElementById(dropdownId);
+            const isShowing = dropdown.style.display === 'flex';
+            dropdown.style.display = isShowing ? 'none' : 'flex';
+            clickedItem.classList.toggle('active', !isShowing);
+        }
+        
+        function printReport() {
+            // Set the print date
+            document.getElementById('print-date').textContent = new Date().toLocaleDateString();
+            
+            // Trigger the print dialog
+            window.print();
+        }
+
+        // Set today's date as default for date fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString();
+            const preparedByDate = document.getElementById('prepared-by-date');
+            const verifiedByDate = document.getElementById('verified-by-date');
+            
+            if (preparedByDate) preparedByDate.textContent = formattedDate;
+            if (verifiedByDate) verifiedByDate.textContent = formattedDate;
+        });
+    </script>
+</body>
+</html>

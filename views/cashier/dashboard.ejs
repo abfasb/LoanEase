@@ -1,0 +1,454 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cashier Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --white: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            margin-left: 280px;
+            transition: margin-left 0.3s;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-title {
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .current-date {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .stat-icon.primary {
+            background-color: var(--primary);
+        }
+        
+        .stat-icon.success {
+            background-color: var(--success);
+        }
+        
+        .stat-icon.warning {
+            background-color: var(--warning);
+        }
+        
+        .stat-icon.danger {
+            background-color: var(--danger);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-title {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .recent-activity {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        .activity-list {
+            list-style: none;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--primary);
+        }
+        
+        .activity-details {
+            flex: 1;
+        }
+        
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+        
+        .activity-time {
+            color: var(--gray);
+            font-size: 0.8rem;
+        }
+        
+        .activity-amount {
+            font-weight: 600;
+        }
+        
+        .quick-actions {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+        }
+        
+        .action-btn {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--dark);
+            border: 1px solid #eee;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .action-btn:hover i {
+            color: white;
+        }
+        
+        .action-btn i {
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+            color: var(--primary);
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn span {
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .recent-activity, .quick-actions {
+                grid-column: 1 / -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <% const currentPage = 'dashboard'; %>
+    <%- include('../partials/cashiersidebar', { currentPage }) %>
+    
+    <div class="main-content">
+        <div class="dashboard-header">
+            <div>
+                <h1 class="dashboard-title">Cashier Dashboard</h1>
+                <p class="current-date" id="currentDate"></p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar"><%= (user && user.first_name) ? user.first_name.charAt(0).toUpperCase() : 'U' %></div>
+                <span><%= (user && user.first_name && user.last_name) ? `${user.first_name} ${user.last_name}` : 'Unknown User' %></span>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value">₱<%= (stats && stats.totalPayments) ? stats.totalPayments.toFixed(2) : '0.00' %></div>
+                        <div class="stat-title">Today's Payments</div>
+                    </div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value"><%= (stats && stats.transactionCount) || 0 %></div>
+                        <div class="stat-title">Total Transactions</div>
+                    </div>
+                    <div class="stat-icon success">
+                        <i class="fas fa-exchange-alt"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value"><%= (stats && stats.completedCount) || 0 %></div>
+                        <div class="stat-title">Completed Payments</div>
+                    </div>
+                    <div class="stat-icon warning">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div>
+                        <div class="stat-value"><%= (stats && stats.overdueCount) || 0 %></div>
+                        <div class="stat-title">Overdue Loans</div>
+                    </div>
+                    <div class="stat-icon danger">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Two Column Layout -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <h2 class="section-title">
+                    <i class="fas fa-history"></i>
+                    Recent Payments
+                </h2>
+                <ul class="activity-list">
+                    <% if (recentPayments && recentPayments.length > 0) { %>
+                        <% recentPayments.forEach(payment => { %>
+                            <li class="activity-item">
+                                <div class="activity-icon">
+                                    <% if (payment.status === 'Completed') { %>
+                                        <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                                    <% } else if (payment.status === 'Failed') { %>
+                                        <i class="fas fa-times-circle" style="color: var(--danger);"></i>
+                                    <% } else { %>
+                                        <i class="fas fa-money-bill-wave" style="color: var(--primary);"></i>
+                                    <% } %>
+                                </div>
+                                <div class="activity-details">
+                                    <div class="activity-title">
+                                        <%= payment.status === 'Completed' ? 'Payment' : payment.status === 'Failed' ? 'Failed Payment' : 'Pending Payment' %> 
+                                        #<%= payment.payment_id || 'N/A' %> by <%= payment.customer_name || 'Unknown Customer' %>
+                                    </div>
+                                    <div class="activity-time">
+                                        <% if (payment.payment_date) { %>
+                                            <%= new Date(payment.payment_date).toLocaleString('en-PH', { 
+                                                year: 'numeric', 
+                                                month: 'short', 
+                                                day: 'numeric', 
+                                                hour: '2-digit', 
+                                                minute: '2-digit' 
+                                            }) %>
+                                        <% } else { %>
+                                            Unknown time
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="activity-amount">
+                                    <%= (payment.status === 'Failed' ? '-' : '') %>₱<%= (payment.amount || 0).toFixed(2) %>
+                                </div>
+                            </li>
+                        <% }) %>
+                    <% } else { %>
+                        <li class="activity-item" style="justify-content: center; color: var(--gray);">
+                            <div class="activity-details">
+                                <div class="activity-title">No recent payments found</div>
+                                <div class="activity-time">Start processing payments to see activity here</div>
+                            </div>
+                        </li>
+                    <% } %>
+                </ul>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2 class="section-title">
+                    <i class="fas fa-bolt"></i>
+                    Quick Actions
+                </h2>
+                <div class="actions-grid">
+                    <a href="/cashier/loan-payments" class="action-btn">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Payment</span>
+                    </a>
+                    <a href="/cashier/loan-payments" class="action-btn">
+                        <i class="fas fa-undo"></i>
+                        <span>Void Payment</span>
+                    </a>
+                    <a href="/cashier/payment-collections" class="action-btn">
+                        <i class="fas fa-money-bill-alt"></i>
+                        <span>Cash Drop</span>
+                    </a>
+                    <a href="/cashier/reports" class="action-btn">
+                        <i class="fas fa-file-alt"></i>
+                        <span>View Reports</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Display current date
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        };
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-PH', options);
+        
+        // Add active class to current nav item
+        document.querySelectorAll('.nav-item').forEach(item => {
+            if (item.textContent.trim().includes('Dashboard')) {
+                item.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
+```

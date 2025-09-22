@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Payment Approvals | Loan System - Cashier</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #e0e7ff;
+            --primary-dark: #3a0ca3;
+            --success: #4cc9f0;
+            --success-bg: #e0f7ff;
+            --warning: #f8961e;
+            --warning-bg: #fff3e0;
+            --danger: #f72585;
+            --danger-bg: #ffebee;
+            --pending: #f48c06;
+            --pending-bg: #fff3cd;
+            --text-primary: #2b2d42;
+            --text-secondary: #4a4e69;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-color: #e9ecef;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #2c3e50;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            justify-content: space-between;
+            padding-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        .sidebar .logo {
+            text-align: center;
+            padding: 25px 0;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #34495e;
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .nav {
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+        .nav-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            color: #fff;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background-color: #34495e;
+            transform: translateX(5px);
+        }
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 20px;
+            color: #ecf0f1;
+        }
+        .dropdown {
+            display: none;
+            flex-direction: column;
+            background-color: #34495e;
+            margin-left: 10px;
+            border-left: 2px solid #2c3e50;
+        }
+        .dropdown .nav-item {
+            padding-left: 40px;
+            background-color: #2c3e50;
+        }
+        .dropdown .nav-item:hover {
+            background-color: #34495e;
+        }
+        .nav-bottom {
+            margin-top: auto;
+        }
+        .chevron {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+        .nav-item.active .chevron {
+            transform: rotate(180deg);
+        }
+        .main-content {
+            margin-left: 280px;
+            padding: 1.5rem;
+            width: calc(100% - 280px);
+            transition: margin-left 0.3s ease;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .page-title i {
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card {
+            background: var(--bg-white);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .stat-pending { color: var(--pending); }
+        .stat-approved { color: var(--success); }
+        .stat-failed { color: var(--danger); }
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-radius: var(--radius-sm);
+            background: var(--bg-white);
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            font-size: 0.875rem;
+        }
+        .filter-tab:hover {
+            color: var(--primary-dark);
+            border-color: var(--primary-light);
+        }
+        .filter-tab.active {
+            color: var(--bg-white);
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        .card {
+            background-color: var(--bg-white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            width: 100%;
+        }
+        .payments-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        .payments-table th {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .payments-table td {
+            padding: 0.75rem;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+        .payments-table tr:last-child td {
+            border-bottom: none;
+        }
+        .payments-table tr:hover td {
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+        .payments-table th:nth-child(1), .payments-table td:nth-child(1) { width: 8%; }
+        .payments-table th:nth-child(2), .payments-table td:nth-child(2) { width: 10%; }
+        .payments-table th:nth-child(3), .payments-table td:nth-child(3) { width: 8%; }
+        .payments-table th:nth-child(4), .payments-table td:nth-child(4) { width: 12%; }
+        .payments-table th:nth-child(5), .payments-table td:nth-child(5) { width: 8%; }
+        .payments-table th:nth-child(6), .payments-table td:nth-child(6) { width: 10%; }
+        .payments-table th:nth-child(7), .payments-table td:nth-child(7) { width: 10%; }
+        .payments-table th:nth-child(8), .payments-table td:nth-child(8) { width: 8%; }
+        .payments-table th:nth-child(9), .payments-table td:nth-child(9) { width: 8%; }
+        .payments-table th:nth-child(10), .payments-table td:nth-child(10) { width: 18%; }
+        .payment-id {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 0.8125rem;
+        }
+        .cb-number {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .amount {
+            font-weight: 500;
+            color: var(--primary-dark);
+            font-size: 0.8125rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.6875rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .status-pending {
+            background-color: var(--pending-bg);
+            color: var(--pending);
+        }
+        .status-completed {
+            background-color: var(--success-bg);
+            color: var(--success);
+        }
+        .status-failed {
+            background-color: var(--danger-bg);
+            color: var(--danger);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 0.25rem;
+        }
+        .action-btn {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: var(--text-secondary);
+        }
+        .action-btn:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+        .action-btn.approve {
+            color: var(--success);
+        }
+        .action-btn.approve:hover {
+            background-color: var(--success-bg);
+        }
+        .action-btn.reject {
+            color: var(--danger);
+        }
+        .action-btn.reject:hover {
+            background-color: var(--danger-bg);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--border-color);
+            opacity: 0.7;
+        }
+        .empty-state h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+        .empty-state p {
+            font-size: 0.8125rem;
+            margin-bottom: 1rem;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: var(--bg-white);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+        .close-modal:hover {
+            color: var(--primary-dark);
+        }
+        .payment-details-section {
+            background-color: #f5f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd6fe;
+        }
+        .payment-details-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #5b21b6;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .payment-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .payment-details-table th, .payment-details-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd6fe;
+        }
+        .payment-details-table th {
+            background-color: #ede9fe;
+            font-weight: 600;
+            color: #5b21b6;
+        }
+        .payment-details-table tr:nth-child(even) {
+            background-color: #f5f3ff;
+        }
+        .payment-details-table tr:hover {
+            background-color: #ede9fe;
+        }
+        .approval-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .approve-btn {
+            background-color: var(--success);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .approve-btn:hover {
+            background-color: #2e8b99;
+        }
+        .reject-btn {
+            background-color: var(--danger);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .reject-btn:hover {
+            background-color: #d63384;
+        }
+        .rejection-reason {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            resize: vertical;
+            min-height: 80px;
+            margin-top: 10px;
+        }
+        @media (max-width: 1200px) {
+            .main-content {
+                padding: 1.25rem;
+            }
+            .payments-table th,
+            .payments-table td {
+                padding: 0.5rem;
+                font-size: 0.75rem;
+            }
+            .action-btn {
+                width: 1.5rem;
+                height: 1.5rem;
+                font-size: 0.75rem;
+            }
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            .filter-tabs {
+                width: 100%;
+                overflow-x: auto;
+                padding-bottom: 0.5rem;
+                display: flex;
+                flex-wrap: nowrap;
+            }
+            .card {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+            .payments-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            .payments-table th,
+            .payments-table td {
+                white-space: nowrap;
+            }
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Payment Approvals | Loan System - Cashier</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Reset and Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f6f9;
+            display: flex;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px 30px;
+            margin-left: 250px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .page-title i {
+            color: #007bff;
+        }
+
+        /* Stats Cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .stat-number.stat-pending {
+            color: #ffc107;
+        }
+
+        .stat-number.stat-approved {
+            color: #28a745;
+        }
+
+        .stat-number.stat-failed {
+            color: #dc3545;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tab:hover, .filter-tab.active {
+            background: #007bff;
+            color: #fff;
+            border-color: #007bff;
+        }
+
+        /* Card and Table */
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+
+        .payments-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .payments-table th, .payments-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .payments-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .payments-table td {
+            font-size: 14px;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .action-btn:hover {
+            color: #007bff;
+        }
+
+        .action-btn.approve:hover {
+            color: #28a745;
+        }
+
+        .action-btn.reject:hover {
+            color: #dc3545;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .close-modal:hover {
+            color: #dc3545;
+        }
+
+        .payment-details-section {
+            padding: 20px;
+        }
+
+        .payment-details-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #007bff;
+            margin-bottom: 15px;
+        }
+
+        .payment-details-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .payment-details-table th, .payment-details-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .payment-details-table th {
+            width: 40%;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .payment-details-table td {
+            font-weight: 400;
+        }
+
+        .approval-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .approve-btn, .reject-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .approve-btn {
+            background: #28a745;
+            color: #fff;
+        }
+
+        .approve-btn:hover {
+            background: #218838;
+        }
+
+        .reject-btn {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .reject-btn:hover {
+            background: #c82333;
+        }
+
+        .rejection-reason {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <% const currentPage = 'loan-payments'; %>
+    <%- include('../partials/cashiersidebar', { currentPage }) %>
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-money-bill-wave"></i>
+                Loan Payment Approvals
+            </h1>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-number stat-pending" id="pendingCount">0</div>
+                <div class="stat-label">Pending Approvals</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-approved" id="approvedCount">0</div>
+                <div class="stat-label">Approved Today</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number stat-failed" id="rejectedCount">0</div>
+                <div class="stat-label">Rejected Today</div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" data-status="all">All Payments</button>
+            <button class="filter-tab" data-status="pending">Pending</button>
+            <button class="filter-tab" data-status="completed">Approved</button>
+            <button class="filter-tab" data-status="failed">Rejected</button>
+        </div>
+
+        <div class="card">
+            <table class="payments-table">
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>CB Number</th>
+                        <th>Loan ID</th>
+                        <th>Member Name</th>
+                        <th>Loan Type</th>
+                        <th>Payment Method</th>
+                        <th>Amount</th>
+                        <th>Payment Type</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="paymentsTableBody">
+                    <% if (payments && payments.length > 0) { %>
+                        <% payments.forEach(payment => { %>
+                            <tr data-status="<%= payment.status.toLowerCase() %>">
+                                <td class="payment-id"><%= payment.payment_id %></td>
+                                <td class="cb-number"><%= payment.cb_number %></td>
+                                <td><%= payment.loan_id %></td>
+                                <td><%= payment.member_name %></td>
+                                <td><%= payment.loan_type %></td>
+                                <td><%= payment.payment_method %></td>
+                                <td class="amount"><%= formatCurrency(payment.amount_paid) %></td>
+                                <td><%= payment.payment_type %></td>
+                                <td><span class="status-badge status-<%= payment.status.toLowerCase() %>"><%= payment.status %></span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" title="View Details" onclick="viewPaymentDetails('<%= payment.payment_id %>')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <% if (payment.status === 'Pending') { %>
+                                            <button class="action-btn approve" title="Approve" onclick="approvePayment('<%= payment.payment_id %>')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button class="action-btn reject" title="Reject" onclick="rejectPayment('<%= payment.payment_id %>')">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="10">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <h3>No payments found</h3>
+                                    <p>No loan payments have been submitted for approval.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Payment Details Modal -->
+        <div class="modal" id="paymentDetailsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Payment Details</h2>
+                    <button class="close-modal" onclick="closeModal('paymentDetailsModal')">&times;</button>
+                </div>
+                <div class="payment-details-section">
+                    <div class="payment-details-title">PAYMENT INFORMATION</div>
+                    <div id="paymentDetailsContainer">
+                        <p>Payment details will be displayed here.</p>
+                    </div>
+                    <div class="approval-actions" id="approvalActions" style="display: none;">
+                        <button class="approve-btn" onclick="confirmApproval()">
+                            <i class="fas fa-check"></i>
+                            Approve Payment
+                        </button>
+                        <button class="reject-btn" onclick="showRejectForm()">
+                            <i class="fas fa-times"></i>
+                            Reject Payment
+                        </button>
+                    </div>
+                    <div id="rejectForm" style="display: none;">
+                        <h4 style="margin-bottom: 10px; color: var(--danger);">Reason for Rejection:</h4>
+                        <textarea class="rejection-reason" placeholder="Please provide a reason for rejection..."></textarea>
+                        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                            <button class="reject-btn" onclick="confirmRejection()">
+                                <i class="fas fa-times"></i>
+                                Confirm Rejection
+                            </button>
+                            <button class="approve-btn" onclick="hideRejectForm()" style="background-color: var(--text-secondary);">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPaymentId = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatistics();
+            
+            // Filter tab functionality
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const status = this.dataset.status;
+                    filterPayments(status);
+                });
+            });
+        });
+
+        function updateStatistics() {
+            const rows = document.querySelectorAll('#paymentsTableBody tr');
+            let pending = 0, approved = 0, rejected = 0;
+            
+            rows.forEach(row => {
+                const status = row.dataset.status;
+                if (status === 'pending') pending++;
+                else if (status === 'completed') approved++;
+                else if (status === 'failed') rejected++;
+            });
+            
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('rejectedCount').textContent = rejected;
+        }
+
+        function filterPayments(status) {
+            const rows = document.querySelectorAll('#paymentsTableBody tr');
+            rows.forEach(row => {
+                if (status === 'all' || row.dataset.status === status) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        async function viewPaymentDetails(paymentId) {
+            currentPaymentId = paymentId;
+            const modal = document.getElementById('paymentDetailsModal');
+            const container = document.getElementById('paymentDetailsContainer');
+            const approvalActions = document.getElementById('approvalActions');
+            const rejectForm = document.getElementById('rejectForm');
+            
+            // Hide reject form
+            rejectForm.style.display = 'none';
+            
+            try {
+                const response = await fetch('/cashier/get-payments');
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to fetch payment data');
+                }
+
+                const paymentData = data.payments.find(p => p.payment_id == paymentId);
+                if (!paymentData) {
+                    throw new Error('Payment not found');
+                }
+
+                // Create table for payment details
+                const table = document.createElement('table');
+                table.className = 'payment-details-table';
+                const tbody = document.createElement('tbody');
+                
+                const details = [
+                    { label: 'Payment ID', value: paymentData.payment_id },
+                    { label: 'CB Number', value: paymentData.cb_number },
+                    { label: 'Loan ID', value: paymentData.loan_id },
+                    { label: 'Member Name', value: paymentData.member_name },
+                    { label: 'Loan Type', value: paymentData.loan_type },
+                    { label: 'Payment Method', value: paymentData.payment_method },
+                    { label: 'Amount Paid', value: '₱' + parseFloat(paymentData.amount_paid).toLocaleString('en-US', { minimumFractionDigits: 2 }) },
+                    { label: 'Payment Type', value: paymentData.payment_type },
+                    { label: 'Reference Number', value: paymentData.reference_number },
+                    { label: 'Payment Sequence', value: paymentData.payment_sequence },
+                    { label: 'Status', value: paymentData.status },
+                    { label: 'Submitted Date', value: new Date(paymentData.created_at).toLocaleString() }
+                ];
+                
+                // Add method-specific details
+                if (paymentData.payment_method === 'GCash') {
+                    details.push(
+                        { label: 'GCash Reference', value: paymentData.gcash_reference || 'N/A' },
+                        { label: 'GCash Full Name', value: paymentData.gcash_fullname || 'N/A' }
+                    );
+                } else if (paymentData.payment_method === 'ATM') {
+                    details.push(
+                        { label: 'ATM Card (Last 4)', value: paymentData.atm_card_last4 || 'N/A' },
+                        { label: 'Bank Name', value: paymentData.atm_bank || 'N/A' },
+                        { label: 'ATM Full Name', value: paymentData.atm_fullname || 'N/A' },
+                        { label: 'Next Deduction Date', value: paymentData.next_deduction_date || 'N/A' }
+                    );
+                } else if (paymentData.payment_method === 'Over the Counter') {
+                    details.push(
+                        { label: 'OTC Full Name', value: paymentData.otc_fullname || 'N/A' },
+                        { label: 'Scheduled Payment Date', value: paymentData.otc_payment_date || 'N/A' },
+                        { label: 'Scheduled Time', value: paymentData.otc_payment_time || 'N/A' },
+                        { label: 'OTC Payment Method', value: paymentData.otc_payment_method || 'N/A' },
+                        { label: 'Check Number', value: paymentData.otc_check_number || 'N/A' }
+                    );
+                }
+
+                details.forEach(detail => {
+                    const row = document.createElement('tr');
+                    const labelCell = document.createElement('th');
+                    labelCell.textContent = detail.label;
+                    const valueCell = document.createElement('td');
+                    valueCell.textContent = detail.value;
+                    row.appendChild(labelCell);
+                    row.appendChild(valueCell);
+                    tbody.appendChild(row);
+                });
+
+                table.appendChild(tbody);
+                container.innerHTML = '';
+                container.appendChild(table);
+
+                // Show approval actions only for pending payments
+                if (paymentData.status === 'Pending') {
+                    approvalActions.style.display = 'flex';
+                } else {
+                    approvalActions.style.display = 'none';
+                }
+
+                // Show modal
+                modal.style.display = 'flex';
+            } catch (error) {
+                alert('Error fetching payment details: ' + error.message);
+                console.error('View Payment Details error:', error);
+            }
+        }
+
+        async function approvePayment(paymentId) {
+            currentPaymentId = paymentId;
+            viewPaymentDetails(paymentId);
+        }
+
+        async function rejectPayment(paymentId) {
+            currentPaymentId = paymentId;
+            viewPaymentDetails(paymentId);
+            setTimeout(() => {
+                showRejectForm();
+            }, 500);
+        }
+
+        async function confirmApproval() {
+            if (!currentPaymentId) return;
+
+            if (confirm('Are you sure you want to approve this payment?')) {
+                try {
+                    const response = await fetch('/cashier/approve-payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            paymentId: currentPaymentId,
+                            action: 'approve'
+                        })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert('Payment approved successfully!');
+                        updatePaymentStatus(currentPaymentId, 'completed');
+                        closeModal('paymentDetailsModal');
+                        updateStatistics();
+                        refreshPayments();
+                    } else {
+                        alert('Error approving payment: ' + (data.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    alert('Error approving payment: ' + error.message);
+                }
+            }
+        }
+
+        function showRejectForm() {
+            document.getElementById('approvalActions').style.display = 'none';
+            document.getElementById('rejectForm').style.display = 'block';
+        }
+
+        function hideRejectForm() {
+            document.getElementById('approvalActions').style.display = 'flex';
+            document.getElementById('rejectForm').style.display = 'none';
+            document.querySelector('.rejection-reason').value = '';
+        }
+
+        async function confirmRejection() {
+            const reason = document.querySelector('.rejection-reason').value.trim();
+            
+            if (!reason) {
+                alert('Please provide a reason for rejection.');
+                return;
+            }
+
+            if (!currentPaymentId) return;
+
+            if (confirm('Are you sure you want to reject this payment?')) {
+                try {
+                    const response = await fetch('/cashier/reject-payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            paymentId: currentPaymentId,
+                            action: 'reject',
+                            reason: reason
+                        })
+                    });
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        alert('Payment rejected successfully!');
+                        updatePaymentStatus(currentPaymentId, 'failed');
+                        closeModal('paymentDetailsModal');
+                        updateStatistics();
+                        refreshPayments();
+                    } else {
+                        alert('Error rejecting payment: ' + (data.message || 'Unknown error'));
+                    }
+                } catch (error) {
+                    alert('Error rejecting payment: ' + error.message);
+                }
+            }
+        }
+
+        function updatePaymentStatus(paymentId, newStatus) {
+            const rows = document.querySelectorAll('#paymentsTableBody tr');
+            rows.forEach(row => {
+                const paymentIdCell = row.querySelector('.payment-id');
+                if (paymentIdCell && paymentIdCell.textContent == paymentId) {
+                    row.dataset.status = newStatus;
+                    const statusBadge = row.querySelector('.status-badge');
+                    if (statusBadge) {
+                        statusBadge.className = `status-badge status-${newStatus}`;
+                        statusBadge.textContent = newStatus === 'completed' ? 'Approved' : 
+                                                 newStatus === 'failed' ? 'Rejected' : 
+                                                 newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                    }
+                    const actionButtons = row.querySelector('.action-buttons');
+                    if (actionButtons && newStatus !== 'pending') {
+                        actionButtons.innerHTML = `
+                            <button class="action-btn" title="View Details" onclick="viewPaymentDetails('${paymentId}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        `;
+                    }
+                }
+            });
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+            currentPaymentId = null;
+            document.getElementById('rejectForm').style.display = 'none';
+            document.querySelector('.rejection-reason').value = '';
+        }
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+
+        setInterval(function() {
+            refreshPayments();
+        }, 30000);
+
+        async function refreshPayments() {
+            try {
+                const response = await fetch('/cashier/get-payments');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updatePaymentsTable(data.payments);
+                    updateStatistics();
+                } else {
+                    console.error('Error refreshing payments:', data.message);
+                }
+            } catch (error) {
+                console.error('Error refreshing payments:', error);
+            }
+        }
+
+        function updatePaymentsTable(payments) {
+            const tbody = document.getElementById('paymentsTableBody');
+            tbody.innerHTML = '';
+
+            if (payments && payments.length > 0) {
+                payments.forEach(payment => {
+                    const row = document.createElement('tr');
+                    row.dataset.status = payment.status.toLowerCase();
+                    
+                    row.innerHTML = `
+                        <td class="payment-id">${payment.payment_id}</td>
+                        <td class="cb-number">${payment.cb_number}</td>
+                        <td>${payment.loan_id}</td>
+                        <td>${payment.member_name}</td>
+                        <td>${payment.loan_type}</td>
+                        <td>${payment.payment_method}</td>
+                        <td class="amount">₱${parseFloat(payment.amount_paid).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td>${payment.payment_type}</td>
+                        <td><span class="status-badge status-${payment.status.toLowerCase()}">${payment.status}</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn" title="View Details" onclick="viewPaymentDetails('${payment.payment_id}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                ${payment.status === 'Pending' ? `
+                                    <button class="action-btn approve" title="Approve" onclick="approvePayment('${payment.payment_id}')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button class="action-btn reject" title="Reject" onclick="rejectPayment('${payment.payment_id}')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(row);
+                });
+            } else {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h3>No payments found</h3>
+                                <p>No loan payments have been submitted for approval.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

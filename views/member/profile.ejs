@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Profile | BOCOFAMCO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 30px;
+            transition: margin-left 0.3s ease;
+            width: calc(100% - 280px);
+        }
+
+        .profile-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 1025px;
+            margin: 0 auto;
+        }
+
+        .profile-header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .profile-header img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid white;
+            margin-bottom: 10px;
+        }
+
+        .profile-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .profile-header p {
+            font-size: 14px;
+            color: #d1d9e6;
+            margin-top: 5px;
+        }
+
+        .profile-nav-buttons {
+            display: flex;
+            justify-content: flex-start;
+            background: #fff;
+            padding: 10px 0;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .profile-nav-buttons button {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .profile-nav-buttons button.active {
+            border-bottom: 3px solid #2c3e50;
+            color: #2c3e50;
+        }
+
+        .profile-nav-buttons button:hover {
+            color: #2c3e50;
+        }
+
+        .profile-section {
+            padding: 20px;
+            display: none;
+        }
+
+        .profile-section.active {
+            display: block;
+        }
+
+        .profile-section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+
+        .profile-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .info-value {
+            padding: 8px;
+            background-color: #f9fafb;
+            border-radius: 5px;
+            min-height: 38px;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+                width: 100%;
+            }
+
+            .profile-container {
+                width: 95%;
+                margin: 10px auto;
+            }
+
+            .profile-nav-buttons {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .profile-nav-buttons button {
+                padding: 8px 5px;
+                font-size: 12px;
+            }
+
+            .profile-info {
+                grid-template-columns: 1fr;
+            }
+
+            .profile-header h2 {
+                font-size: 20px;
+            }
+
+            .profile-header p {
+                font-size: 13px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .profile-container {
+                padding: 15px;
+            }
+
+            .profile-section {
+                padding: 15px;
+            }
+
+            .info-label,
+            .info-value {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <% const currentPage = 'profile'; %>
+        <%- include('../partials/membersidebar', { currentPage }) %>
+
+        <div class="main-content">
+            <div class="profile-container">
+                <div class="profile-header">
+                    <img src="<%= member.profile_picture ? member.profile_picture : '/public/images/default-profile.png' %>" alt="Profile">
+                    <h2><%= member.first_name %> <%= member.middle_name ? member.middle_name + " " : "" %><%= member.last_name %></h2>
+                    <p>Member ID: <%= member.cb_number %></p>
+                </div>
+
+                <div class="profile-nav-buttons">
+                    <button class="active" onclick="showProfileSection('personal')">Personal</button>
+                    <button onclick="showProfileSection('family')">Family</button>
+                    <button onclick="showProfileSection('education')">Education</button>
+                    <button onclick="showProfileSection('employment')">Employment</button>
+                    <button onclick="showProfileSection('cooperative')">Cooperative</button>
+                    <button onclick="showProfileSection('emergency')">Emergency</button>
+                    <button onclick="showProfileSection('agrarian')">Agrarian</button>
+                </div>
+
+                <div class="profile-section active" id="personal-section">
+                    <h3>Personal Information</h3>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <span class="info-label">CB Number</span>
+                            <div class="info-value"><%= member.cb_number %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Date of Birth</span>
+                            <div class="info-value"><%= member.dob %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Gender</span>
+                            <div class="info-value"><%= member.gender %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Civil Status</span>
+                            <div class="info-value"><%= member.civil_status %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Age</span>
+                            <div class="info-value"><%= member.age %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Place of Birth</span>
+                            <div class="info-value"><%= member.place_of_birth %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Nationality</span>
+                            <div class="info-value"><%= member.nationality %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Religion</span>
+                            <div class="info-value"><%= member.religion %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Address</span>
+                            <div class="info-value"><%= member.address %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Contact Number</span>
+                            <div class="info-value"><%= member.contact_number %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email</span>
+                            <div class="info-value"><%= member.email %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section" id="family-section">
+                    <h3>Family Information</h3>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <span class="info-label">Spouse Name</span>
+                            <div class="info-value"><%= member.spouse_name %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Spouse Age</span>
+                            <div class="info-value"><%= member.spouse_age %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Spouse Occupation</span>
+                            <div class="info-value"><%= member.spouse_occupation %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Father's Name</span>
+                            <div class="info-value"><%= member.father_name %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Mother's Name</span>
+                            <div class="info-value"><%= member.mother_name %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Parent's Address</span>
+                            <div class="info-value"><%= member.parent_address %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Number of Children</span>
+                            <div class="info-value"><%= member.number_of_children %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Children Info</span>
+                            <div class="info-value"><%= member.children_info %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section" id="education-section">
+                    <h3>Education</h3>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <span class="info-label">Educational Attainment</span>
+                            <div class="info-value"><%= member.educational_attainment %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Elementary School</span>
+                            <div class="info-value"><%= member.elementary_school %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Elementary Address</span>
+                            <div class="info-value"><%= member.elementary_address %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Elementary Year Graduated</span>
+                            <div class="info-value"><%= member.elementary_year_graduated %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Secondary School</span>
+                            <div class="info-value"><%= member.secondary_school %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Secondary Address</span>
+                            <div class="info-value"><%= member.secondary_address %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Secondary Year Graduated</span>
+                            <div class="info-value"><%= member.secondary_year_graduated %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">College School</span>
+                            <div class="info-value"><%= member.college_school %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">College Address</span>
+                            <div class="info-value"><%= member.college_address %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">College Year Graduated</span>
+                            <div class="info-value"><%= member.college_year_graduated %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Vocational School</span>
+                            <div class="info-value"><%= member.vocational_school %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Vocational Address</span>
+                            <div class="info-value"><%= member.vocational_address %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Vocational Year Graduated</span>
+                            <div class="info-value"><%= member.vocational_year_graduated %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section" id="employment-section">
+                    <h3>Employment and Income</h3>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <span class="info-label">Occupation</span>
+                            <div class="info-value"><%= member.occupation %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Other Income</span>
+                            <div class="info-value"><%= member.other_income %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Annual Income</span>
+                            <div class="info-value"><%= member.annual_income %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section" id="cooperative-section">
+                    <h3>Cooperative Information</h3>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <span class="info-label">Membership Date</span>
+                            <div class="info-value"><%= member.membership_date %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Cooperative Position</span>
+                            <div class="info-value"><%= member.cooperative_position %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Recruited By</span>
+                            <div class="info-value"><%= member.recruited_by %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Signature</span>
+                            <div class="info-value"><%= member.signature ? 'On file' : '' %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Signed Date</span>
+                            <div class="info-value"><%= member.signed_date %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section" id="emergency-section">
+                    <h3>Emergency Contact</h3>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <span class="info-label">Emergency Contact Name</span>
+                            <div class="info-value"><%= member.emergency_contact_name || member.emergency_name %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Emergency Contact Address</span>
+                            <div class="info-value"><%= member.emergency_contact_address || member.emergency_address %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Relation</span>
+                            <div class="info-value"><%= member.relation || member.emergency_relationship %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Emergency Contact Number</span>
+                            <div class="info-value"><%= member.emergency_contact_number || member.emergency_contact %></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="profile-section" id="agrarian-section">
+                    <h3>Agrarian Information</h3>
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <span class="info-label">Agrarian Beneficiary</span>
+                            <div class="info-value"><%= member.agrarian_beneficiary %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Farm Area</span>
+                            <div class="info-value"><%= member.farm_area %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Farm Type</span>
+                            <div class="info-value"><%= member.farm_type %></div>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Is Tenant</span>
+                            <div class="info-value"><%= member.is_tenant %></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showProfileSection(sectionId) {
+            document.querySelectorAll('.profile-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.querySelectorAll('.profile-nav-buttons button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById(`${sectionId}-section`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            if (sidebar) sidebar.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

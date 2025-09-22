@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan System - Cashier Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            color: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            justify-content: space-between;
+            padding-bottom: 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            border-right: 1px solid rgba(148, 163, 184, 0.1);
+        }
+        
+        .sidebar .logo {
+            padding: 24px;
+            background: linear-gradient(135deg, #7baaf7 0%, #1d4ed8 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        
+        .logo img {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #ffffff;
+        }
+        
+        .logo .user-name {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+        }
+        
+        .logo::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #60a5fa, transparent);
+        }
+        
+        .nav {
+            margin-top: 24px;
+            flex-grow: 1;
+            padding: 0 16px;
+        }
+        
+        .nav-item {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 12px;
+            margin-bottom: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+        
+        .nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: #f1f5f9;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+        }
+        
+        .nav-item:hover::before {
+            width: 4px;
+        }
+        
+        .nav-item i {
+            margin-right: 16px;
+            font-size: 18px;
+            color: #94a3b8;
+            width: 20px;
+            text-align: center;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-item:hover i {
+            color: #60a5fa;
+        }
+        
+        .dropdown {
+            display: none;
+            flex-direction: column;
+            background: rgba(15, 23, 42, 0.6);
+            margin: 8px 0 8px 16px;
+            border-radius: 8px;
+            border-left: 2px solid #3b82f6;
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+        
+        .dropdown .nav-item {
+            padding: 12px 16px 12px 32px;
+            background: transparent;
+            margin-bottom: 0;
+            font-size: 13px;
+            border-radius: 0;
+        }
+        
+        .dropdown .nav-item:hover {
+            background: rgba(59, 130, 246, 0.15);
+            transform: translateX(2px);
+        }
+        
+        .dropdown .nav-item:first-child {
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .dropdown .nav-item:last-child {
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .nav-bottom {
+            margin-top: auto;
+            padding: 0 16px;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            padding-top: 20px;
+        }
+        
+        .chevron {
+            margin-left: auto;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #64748b;
+            font-size: 12px;
+        }
+        
+        .nav-item.active .chevron {
+            transform: rotate(180deg);
+            color: #60a5fa;
+        }
+        
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.15);
+            color: #f1f5f9;
+        }
+        
+        .nav-item.active::before {
+            width: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative !important;
+                width: 100%;
+                height: auto;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+            .main-content {
+                margin-left: 0 !important;
+                width: 100%;
+            }
+            .nav {
+                padding: 0 12px;
+            }
+            .nav-bottom {
+                padding: 0 12px;
+                padding-top: 16px;
+            }
+            .mobile-menu-toggle {
+                display: block;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1001;
+                font-size: 24px;
+                color: #1e293b;
+                cursor: pointer;
+            }
+            .sidebar.active {
+                position: fixed !important;
+                top: 0;
+                left: 0;
+                width: 280px;
+                height: 100vh;
+            }
+        }
+        
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 3px;
+        }
+        
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle Button (hidden on desktop) -->
+    <div class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="logo">
+            <img src="/images/Logo-removebg-preview.png" alt="Logo">
+            <span class="user-name">Loan Cashier</span>
+        </div>
+        <div class="nav">
+            <div class="nav-item" onclick="window.location.href='/cashier/dashboard'">
+                <i class="fa-solid fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </div>
+            
+            <div class="nav-item" onclick="window.location.href='/cashier/announcements'">
+                <i class="fa-solid fa-bullhorn"></i>
+                <span>Announcements</span>
+            </div>
+            
+            <div class="nav-item" onclick="toggleDropdown(this, 'loanDropdown')">
+                <i class="fa-solid fa-hand-holding-usd"></i>
+                <span>Loan Transactions</span>
+                <i class="fa-solid fa-chevron-down chevron"></i>
+            </div>
+            <div class="dropdown" id="loanDropdown">
+                <div class="nav-item" onclick="window.location.href='/cashier/active-loans'">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>Active Loans</span>
+                </div>
+                <div class="nav-item" onclick="window.location.href='/cashier/loan-payments'">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                    <span>Loan Payments</span>
+                </div>
+            </div>
+            
+            <div class="nav-item" onclick="window.location.href='/cashier/payment-collections'">
+                <i class="fa-solid fa-cash-register"></i>
+                <span>Payment Collections</span>
+            </div>
+            
+            <div class="nav-item" onclick="window.location.href='/cashier/reports'">
+                <i class="fa-solid fa-chart-bar"></i>
+                <span>Reports</span>
+            </div>
+        </div>
+        <div class="nav-bottom">
+            <div class="nav-item">
+                <i class="fa-solid fa-sign-out-alt"></i>
+                <a href="/logout" style="color: inherit; text-decoration: none;">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown(clickedItem, dropdownId) {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                if (dropdown.id !== dropdownId) {
+                    dropdown.style.display = 'none';
+                    const parent = dropdown.previousElementSibling;
+                    if (parent) parent.classList.remove('active');
+                }
+            });
+            const dropdown = document.getElementById(dropdownId);
+            const isShowing = dropdown.style.display === 'flex';
+            dropdown.style.display = isShowing ? 'none' : 'flex';
+            clickedItem.classList.toggle('active', !isShowing);
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+        
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.querySelector('.mobile-menu-toggle');
+            const isClickInsideSidebar = sidebar.contains(event.target);
+            const isClickOnToggle = mobileToggle.contains(event.target);
+            
+            if (window.innerWidth <= 768 && !isClickInsideSidebar && !isClickOnToggle) {
+                sidebar.classList.remove('active');
+            }
+        });
+        
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth > 768) {
+                sidebar.classList.remove('active');
+            }
+        });
+    </script>    
+</body>
+</html>

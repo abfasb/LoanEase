@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paid Members | Loan System - Cashier</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #e0e7ff;
+            --primary-dark: #3a0ca3;
+            --success: #4cc9f0;
+            --success-bg: #e0f7ff;
+            --warning: #f8961e;
+            --warning-bg: #fff3e0;
+            --danger: #f72585;
+            --danger-bg: #ffebee;
+            --text-primary: #2b2d42;
+            --text-secondary: #4a4e69;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-color: #e9ecef;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: #2c3e50;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            justify-content: space-between;
+            padding-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .logo {
+            text-align: center;
+            padding: 25px 0;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #34495e;
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav {
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: #34495e;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary);
+            color: var(--bg-white);
+        }
+
+        .nav-item.active i {
+            color: var(--bg-white);
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 20px;
+            color: #ecf0f1;
+        }
+
+        .dropdown {
+            display: none;
+            flex-direction: column;
+            background-color: #34495e;
+            margin-left: 10px;
+            border-left: 2px solid #2c3e50;
+        }
+
+        .dropdown .nav-item {
+            padding-left: 40px;
+            background-color: #2c3e50;
+        }
+
+        .dropdown .nav-item.active {
+            background-color: var(--primary);
+            color: var(--bg-white);
+        }
+
+        .dropdown .nav-item:hover {
+            background-color: #34495e;
+        }
+
+        .nav-bottom {
+            margin-top: auto;
+        }
+
+        .chevron {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item.active .chevron {
+            transform: rotate(180deg);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 1.5rem;
+            width: calc(100% - 280px);
+            transition: margin-left 0.3s ease;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-title i {
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .card {
+            background-color: var(--bg-white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            width: 100%;
+        }
+
+        .payment-form {
+            background-color: var(--bg-white);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .payment-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .payment-form input, .payment-form select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+
+        .payment-form input:focus, .payment-form select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .payment-form button {
+            background-color: var(--primary);
+            color: var(--bg-white);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .payment-form button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .members-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .members-table th {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .members-table td {
+            padding: 0.75rem;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+
+        .members-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .members-table tr:hover td {
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+
+        .members-table th:nth-child(1), .members-table td:nth-child(1) { width: 15%; }
+        .members-table th:nth-child(2), .members-table td:nth-child(2) { width: 25%; }
+        .members-table th:nth-child(3), .members-table td:nth-child(3) { width: 15%; }
+        .members-table th:nth-child(4), .members-table td:nth-child(4) { width: 20%; }
+        .members-table th:nth-child(5), .members-table td:nth-child(5) { width: 15%; }
+        .members-table th:nth-child(6), .members-table td:nth-child(6) { width: 10%; }
+
+        .member-id {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 0.8125rem;
+        }
+
+        .amount {
+            font-weight: 500;
+            color: var(--primary-dark);
+            font-size: 0.8125rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .action-btn {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: var(--text-secondary);
+        }
+
+        .action-btn:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--border-color);
+            opacity: 0.7;
+        }
+
+        .empty-state h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 0.8125rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-white);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .close-modal:hover {
+            color: var(--primary-dark);
+        }
+
+        .payment-details-section {
+            background-color: #f5f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd6fe;
+        }
+
+        .payment-details-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #5b21b6;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .payment-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .payment-details-table th, .payment-details-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd6fe;
+        }
+
+        .payment-details-table th {
+            background-color: #ede9fe;
+            font-weight: 600;
+            color: #5b21b6;
+        }
+
+        .payment-details-table tr:nth-child(even) {
+            background-color: #f5f3ff;
+        }
+
+        .payment-details-table tr:hover {
+            background-color: #ede9fe;
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                padding: 1.25rem;
+            }
+
+            .members-table th,
+            .members-table td {
+                padding: 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .action-btn {
+                width: 1.5rem;
+                height: 1.5rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .card {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .members-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .members-table th,
+            .members-table td {
+                white-space: nowrap;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .payment-form {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <% const currentPage = 'payment-collections'; %>
+    <%- include('../partials/cashiersidebar', { currentPage }) %>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-users"></i>
+                Paid Members
+            </h1>
+        </div>
+
+        <div class="payment-form">
+            <form action="/cashier/payment-collections" method="POST">
+                <label for="cb_number">CB Number:</label>
+                <input type="text" id="cb_number" name="cb_number" required>
+                <label for="loan_id">Loan ID:</label>
+                <input type="text" id="loan_id" name="loan_id" required>
+                <label for="amount">Amount:</label>
+                <input type="number" id="amount" name="amount" step="0.01" required>
+                <label for="payment_method">Payment Method:</label>
+                <select id="payment_method" name="payment_method" required>
+                    <option value="GCash">GCash</option>
+                    <option value="ATM">ATM</option>
+                    <option value="Over the Counter">Over the Counter</option>
+                </select>
+                <label for="payment_type">Payment Type:</label>
+                <select id="payment_type" name="payment_type" required>
+                    <option value="Full Payment">Full Payment</option>
+                    <option value="Partial Payment">Partial Payment</option>
+                </select>
+                <label for="reference_number">Reference Number:</label>
+                <input type="text" id="reference_number" name="reference_number" required>
+                <button type="submit">Record Payment</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <table class="members-table">
+                <thead>
+                    <tr>
+                        <th>CB Number</th>
+                        <th>Member Name</th>
+                        <th>Loan ID</th>
+                        <th>Total Paid</th>
+                        <th>Last Payment</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="membersTableBody">
+                    <% if (members && members.length > 0) { %>
+                        <% members.forEach(member => { %>
+                            <tr>
+                                <td class="member-id"><%= member.cb_number %></td>
+                                <td><%= member.member_name %></td>
+                                <td><%= member.loan_id %></td>
+                                <td class="amount"><%= member.total_amount_paid_formatted %></td>
+                                <td><%= member.last_payment_date_formatted %></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn" title="View Payment History" onclick="viewMemberPayments('<%= member.cb_number %>')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="fas fa-users"></i>
+                                    <h3>No paid members found</h3>
+                                    <p>No members with completed loan payments have been recorded.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Payment History Modal -->
+        <div class="modal" id="paymentHistoryModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Payment History</h2>
+                    <button class="close-modal" onclick="closeModal('paymentHistoryModal')">&times;</button>
+                </div>
+                <div class="payment-details-section">
+                    <div class="payment-details-title">PAYMENT HISTORY</div>
+                    <div id="paymentHistoryContainer">
+                        <p>Payment history will be displayed here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown(clickedItem, dropdownId) {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                if (dropdown.id !== dropdownId) {
+                    dropdown.style.display = 'none';
+                    const parent = dropdown.previousElementSibling;
+                    if (parent) parent.classList.remove('active');
+                }
+            });
+            
+            const dropdown = document.getElementById(dropdownId);
+            const isShowing = dropdown.style.display === 'flex';
+            
+            dropdown.style.display = isShowing ? 'none' : 'flex';
+            clickedItem.classList.toggle('active', !isShowing);
+        }
+
+        async function viewMemberPayments(cbNumber) {
+            const modal = document.getElementById('paymentHistoryModal');
+            const container = document.getElementById('paymentHistoryContainer');
+
+            try {
+                const response = await fetch(`/cashier/payments/${cbNumber}`);
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to fetch payment history');
+                }
+
+                if (!data.payments || data.payments.length === 0) {
+                    container.innerHTML = '<p>No completed payments found for this member.</p>';
+                    modal.style.display = 'flex';
+                    return;
+                }
+
+                // Create table for payment history
+                const table = document.createElement('table');
+                table.className = 'payment-details-table';
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+                
+                // Table headers
+                const headers = ['Payment ID', 'Loan ID', 'Amount', 'Date', 'Payment Method', 'Payment Type', 'Reference Number'];
+                const headerRow = document.createElement('tr');
+                headers.forEach(header => {
+                    const th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+
+                // Table rows
+                data.payments.forEach(payment => {
+                    const row = document.createElement('tr');
+                    const cells = [
+                        payment.payment_id,
+                        payment.loan_id,
+                        '₱' + parseFloat(payment.amount_paid).toLocaleString('en-US', { minimumFractionDigits: 2 }),
+                        new Date(payment.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+                        payment.payment_method,
+                        payment.payment_type,
+                        payment.reference_number
+                    ];
+                    cells.forEach(cell => {
+                        const td = document.createElement('td');
+                        td.textContent = cell;
+                        row.appendChild(td);
+                    });
+                    tbody.appendChild(row);
+                });
+
+                table.appendChild(thead);
+                table.appendChild(tbody);
+                container.innerHTML = '';
+                container.appendChild(table);
+
+                // Show modal
+                modal.style.display = 'flex';
+            } catch (error) {
+                alert('Error fetching payment history: ' + error.message);
+                console.error('View Member Payments error:', error);
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

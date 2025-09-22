@@ -1,0 +1,994 @@
+```ejs
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cooperative Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            width: calc(100% - 260px);
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .welcome-section h1 {
+            font-size: 26px;
+            font-weight: 600;
+            color: #1a3a6a;
+        }
+        
+        .welcome-section p {
+            color: #666;
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        
+        .date-section {
+            background: #fff;
+            padding: 12px 18px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            font-size: 14px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+        
+        .stat-title {
+            font-size: 15px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        
+        .stat-value {
+            font-size: 30px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        
+        .stat-description {
+            font-size: 13px;
+            color: #777;
+            font-weight: 400;
+        }
+        
+        .loan-icon { background-color: rgba(255, 152, 0, 0.15); color: #ff9800; border-left-color: #ff9800; }
+        .member-icon { background-color: rgba(76, 175, 80, 0.15); color: #4caf50; border-left-color: #4caf50; }
+        .rental-icon { background-color: rgba(33, 150, 243, 0.15); color: #2196f3; border-left-color: #2196f3; }
+        .savings-icon { background-color: rgba(156, 39, 176, 0.15); color: #9c27b0; border-left-color: #9c27b0; }
+        .bayanihan-icon { background-color: rgba(255, 193, 7, 0.15); color: #ffc107; border-left-color: #ffc107; }
+        
+        .dashboard-sections {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .visualization-section {
+            background: #f8e1f5;
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            animation: bounceIn 1s ease-out;
+        }
+        
+        .visualization-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #e0c1d5;
+        }
+        
+        .visualization-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a3a6a;
+            display: flex;
+            align-items: center;
+        }
+        
+        .visualization-title::before {
+            content: "🌸";
+            margin-right: 8px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); }
+        }
+        
+        .chart-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px dashed #e0c1d5;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding-bottom: 5px;
+        }
+        
+        .chart-tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            border-radius: 15px;
+            margin-right: 10px;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .chart-tab.active {
+            color: #1a3a6a;
+            background: #fce4ec;
+            transform: scale(1.1);
+        }
+        
+        .chart-tab:hover:not(.active) {
+            color: #333;
+            background: #f0f0f0;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 250px;
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #fff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            animation: bounceIn 1s ease-out;
+        }
+        
+        .section-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 22px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1a3a6a;
+        }
+        
+        .view-all {
+            font-size: 13px;
+            color: #4caf50;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .view-all:hover {
+            color: #3d8b40;
+            text-decoration: underline;
+        }
+        
+        .loan-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .loan-table th {
+            text-align: left;
+            padding: 14px 16px;
+            border-bottom: 1px solid #eee;
+            color: #666;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .loan-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            color: #555;
+        }
+        
+        .loan-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .status-active { background-color: rgba(76, 175, 80, 0.15); color: #4caf50; }
+        .status-pending { background-color: rgba(255, 152, 0, 0.15); color: #ff9800; }
+        .status-overdue { background-color: rgba(244, 67, 54, 0.15); color: #f44336; }
+        
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 14px 0;
+            border-bottom: 1px solid #eee;
+            transition: all 0.2s ease;
+        }
+        
+        .activity-item:hover {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 14px 10px;
+        }
+        
+        .activity-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .activity-details {
+            flex-grow: 1;
+        }
+        
+        .activity-details h4 {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .activity-details p {
+            font-size: 13px;
+            color: #777;
+            line-height: 1.4;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: #999;
+            margin-left: 15px;
+            white-space: nowrap;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: #888;
+        }
+        
+        .empty-state i {
+            font-size: 40px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        .empty-state p {
+            font-size: 14px;
+        }
+        
+        @media (max-width: 1200px) {
+            .stats-container {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                gap: 20px;
+            }
+            
+            .chart-container {
+                height: 220px;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard-sections {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-content {
+                padding: 25px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .stat-card {
+                padding: 18px;
+            }
+            
+            .stat-value {
+                font-size: 26px;
+            }
+            
+            .chart-container {
+                height: 200px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-card {
+                padding: 18px;
+            }
+            
+            .loan-table th, 
+            .loan-table td {
+                padding: 12px 10px;
+                font-size: 13px;
+            }
+            
+            .chart-container {
+                height: 180px;
+            }
+            
+            .chart-tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                padding-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <%- include('../partials/adminsidebar') %>
+
+        <div class="main-content">
+            <div class="dashboard-header">
+                <div class="welcome-section">
+                    <h1>Welcome to Cooperative Admin</h1>
+                    <p>Monitor and manage your cooperative's operations</p>
+                </div>
+                <div class="date-section">
+                    <script>
+                        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                        document.write(new Date().toLocaleDateString('en-US', options));
+                    </script>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Active Loans</div>
+                        <div class="stat-icon loan-icon">💰</div>
+                    </div>
+                    <div class="stat-value">₱<%= typeof totalActiveLoans !== 'undefined' ? totalActiveLoans.toLocaleString('en-PH') : '0' %></div>
+                    <div class="stat-description"><%= typeof activeLoanCount !== 'undefined' ? activeLoanCount.toLocaleString('en-PH', { maximumFractionDigits: 0 }) + ' active loans' : '0 active loans' %></div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Total Members</div>
+                        <div class="stat-icon member-icon">👥</div>
+                    </div>
+                    <div class="stat-value"><%= typeof totalMembers !== 'undefined' ? totalMembers.toLocaleString('en-PH', { maximumFractionDigits: 0 }) : '0' %></div>
+                    <div class="stat-description">+<%= typeof newMembersThisMonth !== 'undefined' ? newMembersThisMonth.toLocaleString('en-PH', { maximumFractionDigits: 0 }) : '0' %> this month</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Pending Applications</div>
+                        <div class="stat-icon rental-icon">📝</div>
+                    </div>
+                    <div class="stat-value"><%= typeof pendingApplications !== 'undefined' ? pendingApplications.toLocaleString('en-PH', { maximumFractionDigits: 0 }) : '0' %></div>
+                    <div class="stat-description"><%= typeof pendingLoanCount !== 'undefined' ? pendingLoanCount.toLocaleString('en-PH', { maximumFractionDigits: 0 }) + ' loan applications' : '0 loan applications' %></div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Total Savings</div>
+                        <div class="stat-icon savings-icon">💹</div>
+                    </div>
+                    <div class="stat-value">₱<%= typeof totalSavings !== 'undefined' ? totalSavings.toLocaleString('en-PH') : '0' %></div>
+                    <div class="stat-description">+₱<%= typeof savingsIncreaseThisMonth !== 'undefined' ? savingsIncreaseThisMonth.toLocaleString('en-PH') : '0' %> this month</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <div class="stat-title">Bayanihan Savings</div>
+                        <div class="stat-icon bayanihan-icon">🤝</div>
+                    </div>
+                    <div class="stat-value">₱<%= typeof totalBayanihanSavings !== 'undefined' ? totalBayanihanSavings.toLocaleString('en-PH') : '0' %></div>
+                    <div class="stat-description">Community support funds</div>
+                </div>
+            </div>
+            
+            <div class="visualization-section">
+                <div class="visualization-header">
+                    <div class="visualization-title">Cooperative Metrics Overview</div>
+                </div>
+                
+                <div class="chart-tabs">
+                    <div class="chart-tab active" data-chart="bar">Bar Chart</div>
+                    <div class="chart-tab" data-chart="line">Line Chart</div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Financial Overview (Savings + Loans)</h3>
+                    <canvas id="financialChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <h3>Membership Overview (Members + Applications)</h3>
+                    <canvas id="membershipChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="dashboard-sections">
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title">Recent Loan Applications</div>
+                        <a href="/admin/loans" class="view-all">View All →</a>
+                    </div>
+                    
+                    <% if (typeof recentLoanApplications !== 'undefined' && recentLoanApplications.length > 0) { %>
+                        <table class="loan-table">
+                            <thead>
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Loan Type</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% recentLoanApplications.forEach(loan => { %>
+                                    <tr>
+                                        <td>
+                                            <% if (loan.loan_type === 'Salary Loan') { %>
+                                                <%= loan.first_name %> <%= loan.last_name %>
+                                            <% } else { %>
+                                                <%= loan.cb_number %>
+                                            <% } %>
+                                        </td>
+                                        <td><%= loan.loan_type %></td>
+                                        <td>₱<%= parseFloat(loan.loan_amount).toLocaleString('en-PH') %></td>
+                                        <td><%= new Date(loan.application_date).toLocaleDateString('en-PH') %></td>
+                                        <td>
+                                            <span class="status status-<%= loan.application_status.toLowerCase() %>">
+                                                <%= loan.application_status %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i>📄</i>
+                            <p>No recent loan applications found</p>
+                        </div>
+                    <% } %>
+                </div>
+                
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-title">Recent Activities</div>
+                        <a href="/admin/activities" class="view-all">View All →</a>
+                    </div>
+                    
+                    <div class="activity-list">
+                        <% if (typeof recentActivities !== 'undefined' && recentActivities.length > 0) { %>
+                            <% recentActivities.forEach(activity => { %>
+                                <div class="activity-item">
+                                    <div class="activity-icon" style="background-color: <%- activity.iconBgColor %>; color: <%- activity.iconColor %>">
+                                        <%- activity.icon %>
+                                    </div>
+                                    <div class="activity-details">
+                                        <h4><%- activity.title %></h4>
+                                        <p><%- activity.description %></p>
+                                    </div>
+                                    <div class="activity-time"><%- activity.time %></div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <i>📢</i>
+                                <p>No recent activities found</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    // Chart variables
+    let financialChart, membershipChart;
+    const chartColors = {
+        loans: '#FFCC80', // Pastel orange for Active Loans
+        savings: '#CE93D8', // Pastel purple for Total Savings
+        members: '#A5D6A7', // Pastel green for Total Members
+        applications: '#90CAF9' // Pastel blue for Pending Applications
+    };
+
+    // Function to create or update a single chart
+    function createChart(canvasId, datasets, type = 'bar') {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        let chartInstance = Chart.getChart(canvasId); // Get existing chart, if any
+        
+        // Destroy previous chart if it exists
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        // Prepare chart data with multiple datasets
+        const chartData = {
+            labels: ['Current Metrics'],
+            datasets: datasets.map(dataset => ({
+                label: dataset.label,
+                data: [dataset.value !== undefined && dataset.value !== null ? Number(dataset.value) : 0],
+                backgroundColor: dataset.color,
+                borderColor: dataset.color,
+                borderWidth: 2,
+                tension: 0.4,
+                fill: false,
+                pointBackgroundColor: dataset.color,
+                pointRadius: 3,
+                pointHoverRadius: 5
+            }))
+        };
+
+        // Chart options
+        const options = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 800,
+                easing: 'easeInOutQuad'
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false,
+                        color: '#f0f0f0'
+                    },
+                    ticks: {
+                        color: '#666',
+                        callback: function(value) {
+                            if (canvasId === 'financialChart') {
+                                return '₱' + value.toLocaleString('en-PH');
+                            }
+                            return value.toLocaleString('en-PH', { maximumFractionDigits: 0 });
+                        },
+                        stepSize: canvasId === 'financialChart' ? Math.max(Math.max(...datasets.map(d => d.value || 0)) / 5, 1000) : 1
+                    },
+                    suggestedMax: canvasId === 'financialChart' ? Math.max(Math.max(...datasets.map(d => d.value || 0)) * 1.2, 10000) : Math.max(Math.max(...datasets.map(d => d.value || 0)) + 1, 5)
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#666'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: {
+                        color: '#333',
+                        font: {
+                            family: "'Poppins', sans-serif",
+                            size: 12,
+                            weight: '500'
+                        },
+                        padding: 15,
+                        boxWidth: 15,
+                        usePointStyle: type === 'line'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#333',
+                    bodyColor: '#666',
+                    borderColor: '#eee',
+                    borderWidth: 1,
+                    padding: 10,
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                    titleFont: {
+                        family: "'Poppins', sans-serif",
+                        size: 14,
+                        weight: '600'
+                    },
+                    bodyFont: {
+                        family: "'Poppins', sans-serif",
+                        size: 12
+                    },
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== undefined) {
+                                if (canvasId === 'financialChart') {
+                                    label += '₱' + context.parsed.y.toLocaleString('en-PH');
+                                } else {
+                                    label += context.parsed.y.toLocaleString('en-PH', { maximumFractionDigits: 0 });
+                                }
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
+            elements: {
+                line: {
+                    tension: 0.4
+                },
+                bar: {
+                    borderRadius: 6,
+                    barPercentage: 0.5,
+                    categoryPercentage: 0.6
+                }
+            }
+        };
+
+        // Create chart
+        return new Chart(ctx, {
+            type: type,
+            data: chartData,
+            options: options
+        });
+    }
+
+    // Function to initialize charts with specific values
+    function initializeCharts(type = 'bar', realData = {}) {
+        // Initialize financial chart with 0 values
+        financialChart = createChart('financialChart', [
+            { label: 'Active Loans', value: 0, color: chartColors.loans },
+            { label: 'Total Savings', value: 0, color: chartColors.savings }
+        ], type);
+
+        // Initialize membership chart with real or 0 values
+        membershipChart = createChart('membershipChart', [
+            { label: 'Total Members', value: realData.totalMembers || 0, color: chartColors.members },
+            { label: 'Pending Applications', value: realData.pendingApplications || 0, color: chartColors.applications }
+        ], type);
+
+        // Transition financial charts to 200,000 after 1 second
+        setTimeout(() => {
+            if (financialChart) {
+                financialChart.data.datasets[0].data = [200000];
+                financialChart.data.datasets[1].data = [200000];
+                financialChart.options.scales.y.suggestedMax = 200000 * 1.2;
+                financialChart.options.scales.y.stepSize = 200000 / 5;
+                financialChart.update();
+            }
+
+            // Update financial charts with real data after another second
+            setTimeout(() => {
+                if (financialChart && realData.totalActiveLoans !== undefined && realData.totalSavings !== undefined) {
+                    financialChart.data.datasets[0].data = [realData.totalActiveLoans];
+                    financialChart.data.datasets[1].data = [realData.totalSavings];
+                    financialChart.options.scales.y.suggestedMax = Math.max(Math.max(realData.totalActiveLoans, realData.totalSavings) * 1.2, 10000);
+                    financialChart.options.scales.y.stepSize = Math.max(Math.max(realData.totalActiveLoans, realData.totalSavings) / 5, 1000);
+                    financialChart.update();
+                }
+            }, 1000);
+        }, 1000);
+    }
+
+    // Function to update all charts with real data
+    function updateCharts(data, type = 'bar') {
+        financialChart = createChart('financialChart', [
+            { label: 'Active Loans', value: data.totalActiveLoans || 0, color: chartColors.loans },
+            { label: 'Total Savings', value: data.totalSavings || 0, color: chartColors.savings }
+        ], type);
+        membershipChart = createChart('membershipChart', [
+            { label: 'Total Members', value: data.totalMembers || 0, color: chartColors.members },
+            { label: 'Pending Applications', value: data.pendingApplications || 0, color: chartColors.applications }
+        ], type);
+    }
+
+    // Function to update dashboard with data
+    function updateDashboard(data) {
+        // Update stats cards with real data
+        const statCards = document.querySelectorAll('.stat-card');
+        
+        if (statCards.length >= 5) {
+            statCards[0].querySelector('.stat-value').textContent = `₱${data.totalActiveLoans?.toLocaleString('en-PH') || '0'}`;
+            statCards[0].querySelector('.stat-description').textContent = `${data.activeLoanCount?.toLocaleString('en-PH', { maximumFractionDigits: 0 }) || 0} active loans`;
+            
+            statCards[1].querySelector('.stat-value').textContent = data.totalMembers?.toLocaleString('en-PH', { maximumFractionDigits: 0 }) || '0';
+            statCards[1].querySelector('.stat-description').textContent = `+${data.newMembersThisMonth?.toLocaleString('en-PH', { maximumFractionDigits: 0 }) || 0} this month`;
+            
+            statCards[2].querySelector('.stat-value').textContent = data.pendingApplications?.toLocaleString('en-PH', { maximumFractionDigits: 0 }) || '0';
+            statCards[2].querySelector('.stat-description').textContent = `${data.pendingLoanCount?.toLocaleString('en-PH', { maximumFractionDigits: 0 }) || 0} loan applications`;
+            
+            statCards[3].querySelector('.stat-value').textContent = `₱${data.totalSavings?.toLocaleString('en-PH') || '0'}`;
+            statCards[3].querySelector('.stat-description').textContent = `+₱${data.savingsIncreaseThisMonth?.toLocaleString('en-PH') || '0'} this month`;
+            
+            statCards[4].querySelector('.stat-value').textContent = `₱${data.totalBayanihanSavings?.toLocaleString('en-PH') || '0'}`;
+            statCards[4].querySelector('.stat-description').textContent = 'Community support funds';
+        }
+
+        // Update charts with real data
+        const activeTab = document.querySelector('.chart-tab.active');
+        if (activeTab) {
+            updateCharts(data, activeTab.dataset.chart);
+        }
+
+        // Update recent loan applications
+        const loansTable = document.querySelector('.loan-table tbody');
+        if (data.recentLoanApplications?.length > 0) {
+            let loansHtml = '';
+            data.recentLoanApplications.forEach(loan => {
+                loansHtml += `
+                    <tr>
+                        <td>${loan.first_name ? `${loan.first_name} ${loan.last_name}` : loan.cb_number || 'N/A'}</td>
+                        <td>${loan.loan_type || 'N/A'}</td>
+                        <td>₱${parseFloat(loan.loan_amount || 0).toLocaleString('en-PH')}</td>
+                        <td>${loan.application_date ? new Date(loan.application_date).toLocaleDateString('en-PH') : 'N/A'}</td>
+                        <td><span class="status status-${(loan.application_status || '').toLowerCase()}">${loan.application_status || 'Unknown'}</span></td>
+                    </tr>
+                `;
+            });
+            
+            if (loansTable) {
+                loansTable.innerHTML = loansHtml;
+            } else {
+                const sectionCard = document.querySelector('.section-card:first-child');
+                if (sectionCard) {
+                    sectionCard.innerHTML = `
+                        <div class="section-header">
+                            <div class="section-title">Recent Loan Applications</div>
+                            <a href="/admin/loans" class="view-all">View All →</a>
+                        </div>
+                        <table class="loan-table">
+                            <thead>
+                                <tr>
+                                    <th>Member</th>
+                                    <th>Loan Type</th>
+                                    <th>Amount</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>${loansHtml}</tbody>
+                        </table>
+                    `;
+                }
+            }
+        } else if (loansTable) {
+            const sectionCard = document.querySelector('.section-card:first-child');
+            if (sectionCard) {
+                sectionCard.innerHTML = `
+                    <div class="section-header">
+                        <div class="section-title">Recent Loan Applications</div>
+                        <a href="/admin/loans" class="view-all">View All →</a>
+                    </div>
+                    <div class="empty-state">
+                        <i>📄</i>
+                        <p>No recent loan applications found</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update recent activities
+        const activitiesContainer = document.querySelector('.activity-list');
+        if (data.recentActivities?.length > 0) {
+            let activitiesHtml = '';
+            data.recentActivities.forEach(activity => {
+                activitiesHtml += `
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background-color: ${activity.iconBgColor || '#f5f5f5'}; color: ${activity.iconColor || '#333'}">
+                            ${activity.icon || '📢'}
+                        </div>
+                        <div class="activity-details">
+                            <h4>${activity.title || 'Activity'}</h4>
+                            <p>${activity.description || 'No description'}</p>
+                        </div>
+                        <div class="activity-time">${activity.time || 'Just now'}</div>
+                    </div>
+                `;
+            });
+            
+            if (activitiesContainer) {
+                activitiesContainer.innerHTML = activitiesHtml;
+            } else {
+                const sectionCard = document.querySelector('.section-card:last-child');
+                if (sectionCard) {
+                    sectionCard.innerHTML = `
+                        <div class="section-header">
+                            <div class="section-title">Recent Activities</div>
+                            <a href="/admin/activities" class="view-all">View All →</a>
+                        </div>
+                        <div class="activity-list">${activitiesHtml}</div>
+                    `;
+                }
+            }
+        } else if (activitiesContainer) {
+            const sectionCard = document.querySelector('.section-card:last-child');
+            if (sectionCard) {
+                sectionCard.innerHTML = `
+                    <div class="section-header">
+                        <div class="section-title">Recent Activities</div>
+                        <a href="/admin/activities" class="view-all">View All →</a>
+                    </div>
+                    <div class="empty-state">
+                        <i>📢</i>
+                        <p>No recent activities found</p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // Fetch dashboard data
+    async function fetchDashboardData() {
+        try {
+            const response = await fetch('/admin/dashboard-data');
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            // Initialize charts with real data for non-monetary metrics and 0 for monetary metrics
+            const activeTab = document.querySelector('.chart-tab.active');
+            initializeCharts(activeTab ? activeTab.dataset.chart : 'bar', data);
+            // Update dashboard with real data
+            updateDashboard(data);
+        } catch (error) {
+            console.error('Error fetching dashboard data:', error);
+            // Initialize charts with 0 if fetch fails
+            const activeTab = document.querySelector('.chart-tab.active');
+            initializeCharts(activeTab ? activeTab.dataset.chart : 'bar', {});
+        }
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', () => {
+        const dateElement = document.querySelector('.date-section');
+        if (dateElement) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = new Date().toLocaleDateString('en-US', options);
+        }
+        
+        // Fetch real data and initialize charts
+        fetchDashboardData();
+        setInterval(fetchDashboardData, 60000);
+        
+        const chartTabs = document.querySelectorAll('.chart-tab');
+        chartTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                chartTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                const statCards = document.querySelectorAll('.stat-card');
+                let currentData = {};
+                if (statCards.length >= 5) {
+                    currentData = {
+                        totalActiveLoans: parseFloat(statCards[0].querySelector('.stat-value').textContent.replace(/[^0-9.]/g, '') || 0),
+                        totalMembers: parseInt(statCards[1].querySelector('.stat-value').textContent.replace(/[^0-9]/g, '') || 0),
+                        pendingApplications: parseInt(statCards[2].querySelector('.stat-value').textContent.replace(/[^0-9]/g, '') || 0),
+                        totalSavings: parseFloat(statCards[3].querySelector('.stat-value').textContent.replace(/[^0-9.]/g, '') || 0),
+                        totalBayanihanSavings: parseFloat(statCards[4].querySelector('.stat-value').textContent.replace(/[^0-9.]/g, '') || 0)
+                    };
+                }
+                
+                updateCharts(currentData, this.dataset.chart);
+            });
+        });
+    });
+
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) sidebar.classList.toggle('active');
+    }
+</script>
+</body>
+</html>
+```

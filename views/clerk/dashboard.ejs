@@ -1,0 +1,422 @@
+<%- include('../partials/clerksidebar') %>
+
+<div class="main-content">
+    <div class="dashboard-header">
+        <div class="welcome-section">
+            <h1>Welcome, Clerk</h1>
+            <p>Manage member registrations and basic operations</p>
+        </div>
+        <div class="date-section">
+            <span id="current-date">Loading date...</span>
+        </div>
+    </div>
+    
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">Total Members</div>
+                <div class="stat-icon member-icon">👥</div>
+            </div>
+            <div class="stat-value" id="total-members">0</div>
+            <div class="stat-description">+<span id="new-members-this-month">0</span> this month</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <div class="stat-title">Recent Registrations</div>
+                <div class="stat-icon savings-icon">📅</div>
+            </div>
+            <div class="stat-value" id="recent-registrations">0</div>
+            <div class="stat-description">Last 7 days</div>
+        </div>
+    </div>
+    
+    <div class="dashboard-sections">
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">Recent Member Registrations</div>
+                <a href="/clerk/members" class="view-all">View All →</a>
+            </div>
+            
+            <div id="recent-members">
+                <div class="empty-state">
+                    <i>📄</i>
+                    <p>No recent member registrations found</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">Quick Actions</div>
+            </div>
+            
+            <div class="quick-actions">
+                <a href="/clerk/register" class="quick-action">
+                    <div class="action-icon">➕</div>
+                    <div class="action-text">Register New Member</div>
+                </a>
+                
+                <a href="/clerk/members" class="quick-action">
+                    <div class="action-icon">👥</div>
+                    <div class="action-text">View Members</div>
+                </a>
+                
+                <a href="/clerk/reports" class="quick-action">
+                    <div class="action-icon">📊</div>
+                    <div class="action-text">Generate Reports</div>
+                </a>
+                
+                <a href="/clerk/print-ids" class="quick-action">
+                    <div class="action-icon">🖨️</div>
+                    <div class="action-text">Print ID Cards</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #1e3a8a;
+        --primary-hover: #1e40af;
+        --secondary-color: #f3f4f6;
+        --text-color: #111827;
+        --text-light: #6b7280;
+        --border-color: #d1d5db;
+        --error-color: #dc2626;
+        --success-color: #059669;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --radius: 0.5rem;
+    }
+
+    .main-content {
+        margin-left: 260px;
+        width: calc(100% - 260px);
+        padding: 30px;
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .welcome-section h1 {
+        font-size: 26px;
+        font-weight: 600;
+        color: #1a3a6a;
+    }
+
+    .welcome-section p {
+        color: #666;
+        margin-top: 8px;
+        font-size: 14px;
+    }
+
+    .date-section {
+        background: #fff;
+        padding: 12px 18px;
+        border-radius: 10px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        font-size: 14px;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border-left: 4px solid transparent;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 18px;
+    }
+
+    .stat-title {
+        font-size: 15px;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+    }
+
+    .stat-value {
+        font-size: 30px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: #2c3e50;
+    }
+
+    .stat-description {
+        font-size: 13px;
+        color: #777;
+        font-weight: 400;
+    }
+
+    .member-icon { background-color: rgba(76, 175, 80, 0.15); color: #4caf50; border-left-color: #4caf50; }
+    .savings-icon { background-color: rgba(156, 39, 176, 0.15); color: #9c27b0; border-left-color: #9c27b0; }
+
+    .dashboard-sections {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 25px;
+    }
+
+    .section-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 22px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 22px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a3a6a;
+    }
+
+    .view-all {
+        font-size: 13px;
+        color: #4caf50;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .view-all:hover {
+        color: #3d8b40;
+        text-decoration: underline;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .quick-action {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #333;
+        transition: all 0.2s ease;
+    }
+
+    .quick-action:hover {
+        background: #e9ecef;
+        transform: translateY(-3px);
+    }
+
+    .action-icon {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .action-text {
+        font-size: 14px;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 30px 20px;
+        color: #888;
+    }
+
+    .empty-state i {
+        font-size: 40px;
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+    }
+
+    .member-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .member-table th {
+        text-align: left;
+        padding: 14px 16px;
+        border-bottom: 1px solid #eee;
+        color: #666;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .member-table td {
+        padding: 14px 16px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+        color: #555;
+    }
+
+    .member-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    @media (max-width: 1200px) {
+        .stats-container {
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .dashboard-sections {
+            grid-template-columns: 1fr;
+        }
+
+        .main-content {
+            padding: 25px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            margin-left: 0;
+            width: 100%;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .stats-container {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stat-card {
+            padding: 18px;
+        }
+
+        .stat-value {
+            font-size: 26px;
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+
+        .section-card {
+            padding: 18px;
+        }
+
+        .member-table th, 
+        .member-table td {
+            padding: 12px 10px;
+            font-size: 13px;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Display current date
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', options);
+
+        // Fetch dashboard data
+        fetch('/clerk/dashboard-data')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('total-members').textContent = data.totalMembers;
+                    document.getElementById('new-members-this-month').textContent = data.newMembersThisMonth;
+                    document.getElementById('recent-registrations').textContent = data.recentRegistrations || 0;
+                }
+            })
+            .catch(error => console.error('Error fetching dashboard data:', error));
+
+        // Fetch recent members
+        fetch('/clerk/recent-members')
+            .then(response => response.json())
+            .then(data => {
+                const recentMembersDiv = document.getElementById('recent-members');
+                if (data.success && data.members.length > 0) {
+                    let table = `
+                        <table class="member-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>CB Number</th>
+                                    <th>Registration Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+                    data.members.forEach(member => {
+                        table += `
+                            <tr>
+                                <td>${member.first_name} ${member.last_name}</td>
+                                <td>${member.cb_number}</td>
+                                <td>${new Date(member.membership_date).toLocaleDateString('en-US')}</td>
+                            </tr>
+                        `;
+                    });
+                    table += '</tbody></table>';
+                    recentMembersDiv.innerHTML = table;
+                }
+            })
+            .catch(error => console.error('Error fetching recent members:', error));
+    });
+</script>

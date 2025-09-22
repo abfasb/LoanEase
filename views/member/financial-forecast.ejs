@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Forecast</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <!-- SheetJS (for Excel export) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Google Fonts - Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #e0e5ff;
+            --secondary: #3f37c9;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --warning: #f8961e;
+            --danger: #ef233c;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar integration */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            margin-left: 280px; /* Match sidebar width */
+            transition: var(--transition);
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+            }
+        }
+        
+        .dashboard-container {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .dashboard-title {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .dashboard-subtitle {
+            color: var(--gray);
+            font-weight: 400;
+        }
+        
+        .header-icon {
+            background-color: var(--primary-light);
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(67, 97, 238, 0.15);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid var(--light-gray);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-icon {
+            margin-right: 0.75rem;
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            margin-bottom: 0;
+            font-size: 1.1rem;
+        }
+        
+        .stat-card {
+            background-color: var(--light);
+            border-radius: 10px;
+            padding: 1.5rem;
+            height: 100%;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .stat-card:hover {
+            background-color: white;
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.1);
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-value {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 0;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 10px;
+        }
+        
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .table {
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .table thead th {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            padding: 0.75rem 1rem;
+            border: none;
+        }
+        
+        .table tbody tr {
+            transition: var(--transition);
+        }
+        
+        .table tbody tr:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-top: 1px solid var(--light-gray);
+        }
+        
+        .badge {
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+            font-size: 0.75rem;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-success {
+            background-color: var(--success) !important;
+        }
+        
+        .badge-danger {
+            background-color: var(--danger) !important;
+        }
+        
+        .badge-warning {
+            background-color: var(--warning) !important;
+            color: var(--dark) !important;
+        }
+        
+        .btn-export {
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-left: 0.5rem;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        .btn-export i {
+            margin-right: 0.5rem;
+        }
+        
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+        }
+        
+        .empty-state-icon {
+            font-size: 3rem;
+            color: var(--light-gray);
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state-title {
+            color: var(--gray);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Custom tooltip styling */
+        .chartjs-tooltip {
+            background-color: white !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+            border: none !important;
+            padding: 0.75rem 1rem !important;
+            opacity: 1 !important;
+        }
+        
+        .chartjs-tooltip-key {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin-right: 5px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar Partial -->
+    <%- include('../partials/membersidebar') %>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="dashboard-container">
+            <!-- Header Section -->
+            <div class="dashboard-header">
+                <div>
+                    <h1 class="dashboard-title">
+                        <i class="fas fa-chart-line me-2"></i>Financial Forecast
+                    </h1>
+                    <p class="dashboard-subtitle">Your comprehensive financial health dashboard</p>
+                </div>
+                <div class="header-icon">
+                    <i class="fas fa-coins"></i>
+                </div>
+            </div>
+
+            <!-- Income Summary Section -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-wallet card-icon"></i>
+                    <h5 class="card-title">Income Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <div class="stat-card">
+                                <div class="stat-label">
+                                    <i class="fas fa-calendar-alt me-2"></i>Monthly Salary
+                                </div>
+                                <h3 class="stat-value">₱<%= monthlySalary.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h3>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="stat-card">
+                                <div class="stat-label">
+                                    <i class="fas fa-calendar-check me-2"></i>Projected Annual Salary
+                                </div>
+                                <h3 class="stat-value">₱<%= (monthlySalary * 12).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loan & Salary Graph Section -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-chart-pie card-icon"></i>
+                    <h5 class="card-title">Loan & Salary Visualization</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-4 mb-md-0">
+                            <div class="chart-container">
+                                <canvas id="loanTypeChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="chart-container">
+                                <canvas id="loanAmountChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="chart-container">
+                            <canvas id="salaryLoanComparisonChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loan Summary Section -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-file-invoice-dollar card-icon"></i>
+                    <h5 class="card-title">Loan Summary</h5>
+                    <div class="export-buttons ms-auto no-print">
+                        <button class="btn btn-success btn-export" id="exportExcel">
+                            <i class="fas fa-file-excel"></i> Excel
+                        </button>
+                        <button class="btn btn-danger btn-export" id="exportPDF">
+                            <i class="fas fa-file-pdf"></i> PDF
+                        </button>
+                        <button class="btn btn-primary btn-export" onclick="window.print()">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <% if (loans.length > 0) { %>
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="loanTable">
+                                <thead>
+                                    <tr>
+                                        <th>Loan Type</th>
+                                        <th class="text-end">Amount</th>
+                                        <th class="text-end">Paid-up</th>
+                                        <th class="text-end">Balance</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% loans.forEach(loan => { %>
+                                        <tr>
+                                            <td class="fw-medium"><%= loan.loan_type %></td>
+                                            <td class="text-end">₱<%= loan.loan_amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) %></td>
+                                            <td class="text-end">₱<%= loan.paid_up_capital ? loan.paid_up_capital.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00' %></td>
+                                            <td class="text-end <%= loan.outstanding_balance > 0 ? 'text-danger fw-bold' : 'text-success' %>">
+                                                ₱<%= loan.outstanding_balance ? loan.outstanding_balance.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00' %>
+                                            </td>
+                                            <td>
+                                                <span class="badge <%= loan.loan_status === 'Current' ? 'badge-success' : loan.loan_status === 'Past Due' ? 'badge-danger' : 'badge-warning' %>">
+                                                    <%= loan.loan_status %>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
+                            </div>
+                            <h5 class="empty-state-title">No active loans found</h5>
+                            <p class="empty-state-text">You don't have any active loans at this time.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Financial Charts and Export Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Prepare loan data for charts
+            const loans = <%- JSON.stringify(loans) %>;
+            const monthlySalary = <%= monthlySalary %>;
+            
+            // Chart colors (pastel tones for cute aesthetic)
+            const colors = {
+                primary: '#90CAF9', // Pastel blue
+                accent: '#FF80AB', // Pastel pink
+                success: '#A5D6A7', // Pastel green
+                purple: '#CE93D8', // Pastel purple
+                darkBlue: '#A5B4FC', // Pastel dark blue
+                lightPrimary: 'rgba(144, 202, 249, 0.1)' // Light pastel blue
+            };
+            
+            // Chart default settings
+            Chart.defaults.font.family = 'Poppins';
+            Chart.defaults.color = '#6c757d';
+            Chart.defaults.borderColor = 'rgba(0, 0, 0, 0.05)';
+            
+            // 1. Loan Type Distribution Pie Chart
+            if (loans.length > 0) {
+                const loanTypeCtx = document.getElementById('loanTypeChart').getContext('2d');
+                const loanTypeData = {};
+                
+                loans.forEach(loan => {
+                    loanTypeData[loan.loan_type] = (loanTypeData[loan.loan_type] || 0) + 1;
+                });
+                
+                new Chart(loanTypeCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: Object.keys(loanTypeData),
+                        datasets: [{
+                            data: Object.values(loanTypeData),
+                            backgroundColor: [
+                                colors.primary,
+                                colors.accent,
+                                colors.success,
+                                colors.purple,
+                                colors.darkBlue
+                            ],
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 1200,
+                            easing: 'easeOutCubic'
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Loan Type Distribution (Count)',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 20
+                                }
+                            },
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'white',
+                                titleColor: colors.primary,
+                                bodyColor: '#212529',
+                                borderColor: '#dee2e6',
+                                borderWidth: 1,
+                                padding: 12,
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                                titleFont: {
+                                    size: 14,
+                                    weight: '600'
+                                },
+                                bodyFont: {
+                                    size: 12
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        const label = context.label || '';
+                                        const value = context.raw || 0;
+                                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                        const percentage = Math.round((value / total) * 100);
+                                        return `${label}: ${value} loan${value !== 1 ? 's' : ''} (${percentage}%)`;
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+
+                // 2. Loan Amount Chart (Bar Chart)
+                const loanAmountCtx = document.getElementById('loanAmountChart').getContext('2d');
+                const loanAmountData = loans.map(loan => ({
+                    type: loan.loan_type || 'Unknown',
+                    amount: loan.loan_amount || 0,
+                    balance: loan.outstanding_balance || 0
+                }));
+
+                new Chart(loanAmountCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: loanAmountData.map(loan => loan.type),
+                        datasets: [
+                            {
+                                label: 'Loan Amount',
+                                data: loanAmountData.map(loan => loan.amount),
+                                backgroundColor: colors.primary,
+                                borderColor: colors.primary,
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                barPercentage: 0.4,
+                                categoryPercentage: 0.5
+                            },
+                            {
+                                label: 'Outstanding Balance',
+                                data: loanAmountData.map(loan => loan.balance),
+                                backgroundColor: colors.accent,
+                                borderColor: colors.accent,
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                barPercentage: 0.4,
+                                categoryPercentage: 0.5
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 1200,
+                            easing: 'easeOutCubic'
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Loan Amounts & Balances',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 20
+                                }
+                            },
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'white',
+                                titleColor: colors.primary,
+                                bodyColor: '#212529',
+                                borderColor: '#dee2e6',
+                                borderWidth: 1,
+                                padding: 12,
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                                titleFont: {
+                                    size: 14,
+                                    weight: '600'
+                                },
+                                bodyFont: {
+                                    size: 12
+                                },
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ₱${context.raw.toLocaleString('en-US')}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false,
+                                    color: '#f0f0f0'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + value.toLocaleString('en-US');
+                                    },
+                                    stepSize: Math.max(Math.max(...loanAmountData.map(loan => Math.max(loan.amount, loan.balance))) / 5, 1000),
+                                    suggestedMax: Math.max(Math.max(...loanAmountData.map(loan => Math.max(loan.amount, loan.balance))) * 1.2, 10000)
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    color: '#666'
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 3. Salary vs Loan Comparison Bar Chart
+                const comparisonCtx = document.getElementById('salaryLoanComparisonChart').getContext('2d');
+                
+                // Prepare data for grouped bar chart
+                const labels = ['Monthly Salary'].concat(loans.map(loan => loan.loan_type || 'Unknown'));
+                const salaryData = [monthlySalary].concat(loans.map(() => null)); // Salary only for first label
+                const amountData = [null].concat(loans.map(loan => loan.loan_amount || 0));
+                const paidData = [null].concat(loans.map(loan => loan.paid_up_capital || 0));
+                const balanceData = [null].concat(loans.map(loan => loan.outstanding_balance || 0));
+                const statusData = loans.map(loan => loan.loan_status || 'N/A');
+                
+                new Chart(comparisonCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Monthly Salary',
+                                data: salaryData,
+                                backgroundColor: colors.primary,
+                                borderColor: colors.primary,
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                barPercentage: 0.3,
+                                categoryPercentage: 0.7
+                            },
+                            {
+                                label: 'Loan Amount',
+                                data: amountData,
+                                backgroundColor: colors.accent,
+                                borderColor: colors.accent,
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                barPercentage: 0.3,
+                                categoryPercentage: 0.7
+                            },
+                            {
+                                label: 'Amount Paid',
+                                data: paidData,
+                                backgroundColor: colors.success,
+                                borderColor: colors.success,
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                barPercentage: 0.3,
+                                categoryPercentage: 0.7
+                            },
+                            {
+                                label: 'Remaining Balance',
+                                data: balanceData,
+                                backgroundColor: colors.purple,
+                                borderColor: colors.purple,
+                                borderWidth: 1,
+                                borderRadius: 8,
+                                barPercentage: 0.3,
+                                categoryPercentage: 0.7
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 1200,
+                            easing: 'easeOutCubic'
+                        },
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Salary vs Loan Breakdown by Loan Type',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                padding: {
+                                    top: 10,
+                                    bottom: 20
+                                }
+                            },
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20,
+                                    usePointStyle: true,
+                                    font: {
+                                        size: 12,
+                                        weight: '500'
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'white',
+                                titleColor: colors.primary,
+                                bodyColor: '#212529',
+                                borderColor: '#dee2e6',
+                                borderWidth: 1,
+                                padding: 12,
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                                titleFont: {
+                                    size: 14,
+                                    weight: '600'
+                                },
+                                bodyFont: {
+                                    size: 12
+                                },
+                                callbacks: {
+                                    title: function(tooltipItems) {
+                                        const index = tooltipItems[0].dataIndex;
+                                        return labels[index];
+                                    },
+                                    label: function(context) {
+                                        const value = context.raw || 0;
+                                        const datasetLabel = context.dataset.label;
+                                        const loanIndex = context.dataIndex - 1; // Adjust for Monthly Salary
+                                        const status = loanIndex >= 0 ? statusData[loanIndex] : '';
+                                        return [
+                                            `${datasetLabel}: ₱${value.toLocaleString('en-US')}`,
+                                            ...(loanIndex >= 0 ? [`Status: ${status}`] : [])
+                                        ];
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    drawBorder: false,
+                                    color: '#f0f0f0'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₱' + value.toLocaleString('en-US');
+                                    },
+                                    stepSize: Math.max(Math.max(monthlySalary, ...amountData, ...paidData, ...balanceData) / 5, 1000),
+                                    suggestedMax: Math.max(Math.max(monthlySalary, ...amountData, ...paidData, ...balanceData) * 1.2, 10000)
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    color: '#666'
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Hide chart containers if no loans
+                document.querySelectorAll('.chart-container').forEach(el => {
+                    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon"><i class="fas fa-chart-bar"></i></div><h5 class="empty-state-title">No data available</h5><p class="empty-state-text">No loan data to visualize</p></div>';
+                });
+            }
+            
+            // Excel Export
+            document.getElementById('exportExcel').addEventListener('click', function() {
+                // Get table data
+                const table = document.getElementById('loanTable');
+                
+                if (table) {
+                    const workbook = XLSX.utils.table_to_book(table);
+                    
+                    // Generate filename with current date
+                    const date = new Date();
+                    const filename = `Loan_Summary_${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}.xlsx`;
+                    
+                    // Export to Excel
+                    XLSX.writeFile(workbook, filename);
+                } else {
+                    alert('No loan data available to export');
+                }
+            });
+            
+            // PDF Export
+            document.getElementById('exportPDF').addEventListener('click', function() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                const date = new Date();
+                const filename = `Loan_Summary_${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}.pdf`;
+                
+                // Add title
+                doc.setFontSize(18);
+                doc.setTextColor(67, 97, 238);
+                doc.setFont('helvetica', 'bold');
+                doc.text('Loan Summary Report', 14, 15);
+                
+                doc.setFontSize(12);
+                doc.setTextColor(108, 117, 125);
+                doc.setFont('helvetica', 'normal');
+                doc.text(`Generated on: ${date.toLocaleDateString()}`, 14, 22);
+                
+                // Check if there's data to export
+                if (loans.length > 0) {
+                    // Add table
+                    doc.autoTable({
+                        html: '#loanTable',
+                        startY: 30,
+                        styles: {
+                            fontSize: 10,
+                            cellPadding: 6,
+                            valign: 'middle',
+                            textColor: [33, 37, 41]
+                        },
+                        headStyles: {
+                            fillColor: [67, 97, 238],
+                            textColor: [255, 255, 255],
+                            fontStyle: 'bold',
+                            halign: 'center'
+                        },
+                        alternateRowStyles: {
+                            fillColor: [248, 249, 250]
+                        },
+                        columnStyles: {
+                            0: { cellWidth: 'auto', fontStyle: 'bold' },
+                            1: { cellWidth: 'auto', halign: 'right' },
+                            2: { cellWidth: 'auto', halign: 'right' },
+                            3: { cellWidth: 'auto', halign: 'right' },
+                            4: { cellWidth: 'auto', halign: 'center' }
+                        },
+                        didParseCell: function(data) {
+                            // Color balance cells
+                            if (data.column.index === 3) {
+                                const balance = parseFloat(data.cell.raw.textContent.replace(/[^\d.-]/g, ''));
+                                if (balance > 0) {
+                                    data.cell.styles.textColor = [239, 35, 60]; // Red
+                                    data.cell.styles.fontStyle = 'bold';
+                                } else {
+                                    data.cell.styles.textColor = [0, 128, 0]; // Green
+                                }
+                            }
+                            
+                            // Format status cells
+                            if (data.column.index === 4) {
+                                const status = data.cell.raw.textContent.trim();
+                                if (status === 'Current') {
+                                    data.cell.styles.fillColor = [76, 201, 240];
+                                } else if (status === 'Past Due') {
+                                    data.cell.styles.fillColor = [239, 35, 60];
+                                } else {
+                                    data.cell.styles.fillColor = [248, 150, 30];
+                                }
+                                data.cell.styles.textColor = [255, 255, 255];
+                            }
+                        }
+                    });
+                } else {
+                    doc.setFontSize(14);
+                    doc.setTextColor(108, 117, 125);
+                    doc.text('No active loans found', 14, 30);
+                    doc.setFontSize(12);
+                    doc.text('You don\'t have any active loans at this time.', 14, 40);
+                }
+                
+                // Save the PDF
+                doc.save(filename);
+            });
+        });
+    </script>
+</body>
+</html>

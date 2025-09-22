@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - BOCOFAMCO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        /* Sidebar styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #2c3e50;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            justify-content: space-between;
+            padding-bottom: 20px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .sidebar .logo {
+            text-align: center;
+            padding: 25px 0;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #34495e;
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .nav {
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+        .nav-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            color: #fff;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background-color: #34495e;
+            transform: translateX(5px);
+        }
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 20px;
+            color: #ecf0f1;
+        }
+        .dropdown {
+            display: none;
+            flex-direction: column;
+            background-color: #34495e;
+            margin-left: 10px;
+            border-left: 2px solid #2c3e50;
+        }
+        .dropdown .nav-item {
+            padding-left: 40px;
+            background-color: #2c3e50;
+        }
+        .dropdown .nav-item:hover {
+            background-color: #34495e;
+        }
+        .nav-bottom {
+            margin-top: auto;
+        }
+        .chevron {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+        .nav-item.active .chevron {
+            transform: rotate(180deg);
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: relative !important;
+                width: 100%;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+        }
+        
+        /* Main content styles */
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            min-height: 100vh;
+            background-color: #f4f6f9;
+        }
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        .date-picker {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height"16" viewBox="0 0 24 24"><path fill="%23333" d="M7 10l5 5 5-5z"/></svg>') no-repeat right 10px center;
+            background-color: #fff;
+        }
+        
+        /* Statistics cards */
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card.total { background-color: #3498db; }
+        .stat-card.male { background-color: #2ecc71; }
+        .stat-card.female { background-color: #e74c3c; }
+        .stat-card.new { background-color: #f39c12; }
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        /* Form and table styles */
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        .card-header {
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            padding: 15px 20px;
+        }
+        .table-responsive {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .btn-primary {
+            background-color: #2c3e50;
+            border-color: #2c3e50;
+        }
+        .btn-primary:hover {
+            background-color: #1a252f;
+            border-color: #1a252f;
+        }
+        .btn-success {
+            background-color: #27ae60;
+            border-color: #27ae60;
+        }
+        .btn-success:hover {
+            background-color: #219653;
+            border-color: #219653;
+        }
+        
+        /* Signature panel styles */
+        .signature-panel {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9fafb;
+            border-radius: 8px;
+            border: 1px dashed #d1d5db;
+        }
+        .signature-box {
+            width: 45%;
+            padding: 15px;
+        }
+        .signature-line {
+            border-top: 1px solid #000;
+            margin: 40px 0 10px 0;
+            padding-top: 10px;
+        }
+        .editable-field {
+            border-bottom: 1px dashed #4b5563;
+            min-width: 200px;
+            display: inline-block;
+            padding: 4px 8px;
+            margin: 5px 0;
+        }
+        .editable-field:focus {
+            outline: none;
+            background-color: #f3f4f6;
+            border-bottom: 2px solid #3b82f6;
+        }
+        
+        /* Print-specific styles */
+        @media print {
+            .sidebar, .no-print, .bg-white.shadow-md.rounded-lg.p-6.mb-6 {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+                padding: 0 !important;
+                background-color: white !important;
+                width: 100% !important;
+            }
+            .container.mx-auto {
+                width: 100% !important;
+                max-width: none !important;
+            }
+            body, html {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            h1.text-2xl.font-bold.mb-6 {
+                text-align: center;
+                margin-bottom: 20px !important;
+                font-size: 24px !important;
+            }
+            h2.text-xl.font-semibold {
+                text-align: center;
+                margin-bottom: 15px !important;
+                font-size: 20px !important;
+            }
+            .bg-white.shadow-md.rounded-lg.p-6 {
+                box-shadow: none !important;
+                padding: 0 !important;
+                background-color: white !important;
+            }
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                font-size: 12px !important;
+            }
+            th, td {
+                padding: 6px !important;
+                border: 1px solid #ddd !important;
+            }
+            th {
+                background-color: #f8f8f8 !important;
+            }
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+            .print-footer {
+                display: block !important;
+                text-align: center;
+                margin-top: 30px;
+                border-top: 1px solid #ddd;
+                padding-top: 10px;
+                font-size: 12px;
+            }
+            .signature-panel {
+                display: flex !important;
+                justify-content: space-between;
+                margin-top: 50px;
+                border: none !important;
+                background-color: transparent !important;
+                padding: 0 !important;
+            }
+            .signature-box {
+                width: 45%;
+                border-top: 1px solid #000;
+                padding-top: 50px;
+                text-align: center;
+            }
+            .editable-field {
+                border-bottom: 1px dashed #4b5563;
+                min-width: 200px;
+            }
+            .stat-cards-row {
+                display: none !important;
+            }
+        }
+        .print-header, .print-footer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <%- include('../partials/clerksidebar') %>
+    
+    <div class="main-content">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold mb-6">Member Reports</h1>
+
+            <!-- Print Header (only shows when printing) -->
+            <div class="print-header">
+                <h1>BOCOFAMCO Member Reports</h1>
+                <h2>Member Directory</h2>
+                <p>Generated on: <span id="print-date"></span></p>
+            </div>
+
+            <% if (error) { %>
+                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                    <p><%= error %></p>
+                </div>
+            <% } %>
+            
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 stat-cards-row">
+                <div class="stat-card total">
+                    <h5 class="text-lg font-semibold">Total Members</h5>
+                    <div class="stat-number" id="totalMembers">0</div>
+                </div>
+                <div class="stat-card male">
+                    <h5 class="text-lg font-semibold">Male Members</h5>
+                    <div class="stat-number" id="maleMembers">0</div>
+                </div>
+                <div class="stat-card female">
+                    <h5 class="text-lg font-semibold">Female Members</h5>
+                    <div class="stat-number" id="femaleMembers">0</div>
+                </div>
+                <div class="stat-card new">
+                    <h5 class="text-lg font-semibold">New This Month</h5>
+                    <div class="stat-number" id="newMembers">0</div>
+                </div>
+            </div>
+            
+            <!-- Report Filters -->
+            <div class="card no-print">
+                <div class="card-header">
+                    <h5 class="mb-0 text-lg font-semibold">Generate Report</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/clerk/reports/generate" method="POST">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                            <div>
+                                <label for="reportType" class="block text-sm font-medium text-gray-700">Report Type</label>
+                                <select id="reportType" name="reportType" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 date-picker" required>
+                                    <option value="members" <%= filters.reportType === 'members' ? 'selected' : '' %>>Member List</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="startDate" class="block text-sm font-medium text-gray-700">Start Date</label>
+                                <input type="date" id="startDate" name="startDate" value="<%= filters.startDate || '' %>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 date-picker">
+                            </div>
+                            <div>
+                                <label for="endDate" class="block text-sm font-medium text-gray-700">End Date</label>
+                                <input type="date" id="endDate" name="endDate" value="<%= filters.endDate || '' %>" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 date-picker">
+                            </div>
+                            <div>
+                                <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                                <select id="gender" name="gender" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 date-picker">
+                                    <option value="all" <%= filters.gender === 'all' ? 'selected' : '' %>>All Genders</option>
+                                    <option value="Male" <%= filters.gender === 'Male' ? 'selected' : '' %>>Male</option>
+                                    <option value="Female" <%= filters.gender === 'Female' ? 'selected' : '' %>>Female</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="agrarian" class="block text-sm font-medium text-gray-700">Agrarian Beneficiary</label>
+                                <select id="agrarian" name="agrarian" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 date-picker">
+                                    <option value="all" <%= filters.agrarian === 'all' ? 'selected' : '' %>>All Types</option>
+                                    <option value="Yes" <%= filters.agrarian === 'Yes' ? 'selected' : '' %>>Yes</option>
+                                    <option value="No" <%= filters.agrarian === 'No' ? 'selected' : '' %>>No</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                Generate Report
+                            </button>
+                            
+                            <% if (reports) { %>
+                                <a href="/clerk/reports/export?startDate=<%= filters.startDate || '' %>&endDate=<%= filters.endDate || '' %>&gender=<%= filters.gender || 'all' %>&agrarian=<%= filters.agrarian || 'all' %>" 
+                                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 ml-2">
+                                    <i class="fas fa-download mr-2"></i> Export to CSV
+                                </a>
+                                <button onclick="printReport()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 ml-2">
+                                    <i class="fas fa-print mr-2"></i> Print Report
+                                </button>
+                            <% } %>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Report Results -->
+            <% if (reports) { %>
+                <div class="card">
+                    <div class="card-header flex justify-between items-center">
+                        <h5 class="mb-0 text-lg font-semibold">Report Results</h5>
+                        <span class="bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded"><%= reports.length %> records found</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CB Number</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Membership Date</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occupation</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Agrarian</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider no-print">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <% if (reports.length > 0) { %>
+                                        <% reports.forEach(member => { %>
+                                            <tr>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= member.cb_number %></td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <%= member.first_name %> <%= member.middle_name || '' %> <%= member.last_name %>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= member.gender %></td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= member.contact_number %></td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    <%= member.membership_date ? new Date(member.membership_date).toLocaleDateString() : 'N/A' %>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= member.occupation || 'N/A' %></td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= member.agrarian_beneficiary || 'N/A' %></td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 no-print">
+                                                    <a href="/clerk/members/<%= member.id %>" class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700">
+                                                        View
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="8" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No records found</td>
+                                        </tr>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Signature Panel (visible on screen and when printing) -->
+                <div class="signature-panel">
+                    <div class="signature-box">
+                        <p class="font-semibold">Prepared by:</p>
+                        <div class="signature-line"></div>
+                        <div class="mt-2">
+                            <p>Name: <span class="editable-field" contenteditable="true" id="prepared-by-name">Type name here</span></p>
+                            <p class="mt-2">Date: <span class="editable-field" contenteditable="true" id="prepared-by-date">Type date here</span></p>
+                        </div>
+                    </div>
+                    <div class="signature-box">
+                        <p class="font-semibold">Verified by:</p>
+                        <div class="signature-line"></div>
+                        <div class="mt-2">
+                            <p>Name: <span class="editable-field" contenteditable="true" id="verified-by-name">Type name here</span></p>
+                            <p class="mt-2">Date: <span class="editable-field" contenteditable="true" id="verified-by-date">Type date here</span></p>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Print Footer (only shows when printing) -->
+            <div class="print-footer">
+                <p>BOCOFAMCO - Member Directory Report</p>
+                <p>Page <span class="page-number"></span> of <span class="page-total"></span></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown(clickedItem, dropdownId) {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                if (dropdown.id !== dropdownId) {
+                    dropdown.style.display = 'none';
+                    const parent = dropdown.previousElementSibling;
+                    if (parent) parent.classList.remove('active');
+                }
+            });
+            const dropdown = document.getElementById(dropdownId);
+            const isShowing = dropdown.style.display === 'flex';
+            dropdown.style.display = isShowing ? 'none' : 'flex';
+            clickedItem.classList.toggle('active', !isShowing);
+        }
+        
+        function printReport() {
+            // Set the print date
+            document.getElementById('print-date').textContent = new Date().toLocaleDateString();
+            
+            // Trigger the print dialog
+            window.print();
+        }
+
+        // Set today's date as default for date fields
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const formattedDate = today.toLocaleDateString();
+            const preparedByDate = document.getElementById('prepared-by-date');
+            const verifiedByDate = document.getElementById('verified-by-date');
+            
+            if (preparedByDate) preparedByDate.textContent = formattedDate;
+            if (verifiedByDate) verifiedByDate.textContent = formattedDate;
+            
+            // Fetch and display member statistics
+            fetch('/clerk/reports/statistics')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('totalMembers').textContent = data.total;
+                    document.getElementById('newMembers').textContent = data.newThisMonth;
+                    
+                    // Find gender counts
+                    const maleCount = data.byGender.find(item => item.gender === 'Male')?.count || 0;
+                    const femaleCount = data.byGender.find(item => item.gender === 'Female')?.count || 0;
+                    
+                    document.getElementById('maleMembers').textContent = maleCount;
+                    document.getElementById('femaleMembers').textContent = femaleCount;
+                })
+                .catch(error => {
+                    console.error('Error fetching statistics:', error);
+                });
+        });
+    </script>
+</body>
+</html>

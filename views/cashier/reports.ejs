@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports | Loan System - Cashier</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #e0e7ff;
+            --primary-dark: #3a0ca3;
+            --success: #4cc9f0;
+            --success-bg: #e0f7ff;
+            --warning: #f8961e;
+            --warning-bg: #fff3e0;
+            --danger: #f72585;
+            --danger-bg: #ffebee;
+            --text-primary: #2b2d42;
+            --text-secondary: #4a4e69;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-color: #e9ecef;
+            --shadow-sm: 0 1px 2px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 280px;
+            background-color: #2c3e50;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            justify-content: space-between;
+            padding-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar .logo {
+            text-align: center;
+            padding: 25px 0;
+            font-size: 24px;
+            font-weight: bold;
+            background-color: #34495e;
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav {
+            margin-top: 20px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: #34495e;
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary);
+            color: var(--bg-white);
+        }
+
+        .nav-item.active i {
+            color: var(--bg-white);
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 20px;
+            color: #ecf0f1;
+        }
+
+        .dropdown {
+            display: none;
+            flex-direction: column;
+            background-color: #34495e;
+            margin-left: 10px;
+            border-left: 2px solid #2c3e50;
+        }
+
+        .dropdown .nav-item {
+            padding-left: 40px;
+            background-color: #2c3e50;
+        }
+
+        .dropdown .nav-item.active {
+            background-color: var(--primary);
+            color: var(--bg-white);
+        }
+
+        .dropdown .nav-item:hover {
+            background-color: #34495e;
+        }
+
+        .nav-bottom {
+            margin-top: auto;
+        }
+
+        .chevron {
+            margin-left: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item.active .chevron {
+            transform: rotate(180deg);
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 1.5rem;
+            width: calc(100% - 280px);
+            transition: margin-left 0.3s ease;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .page-title i {
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .report-form {
+            background-color: var(--bg-white);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .report-form label {
+            font-weight: 500;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .report-form select, .report-form input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            transition: var(--transition);
+            width: 200px;
+        }
+
+        .report-form select:focus, .report-form input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 2px var(--primary-light);
+        }
+
+        .report-form button {
+            background-color: var(--primary);
+            color: var(--bg-white);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .report-form button:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .export-btn {
+            background-color: var(--success);
+            color: var(--bg-white);
+        }
+
+        .export-btn:hover {
+            background-color: #3ab0d8;
+        }
+
+        .card {
+            background-color: var(--bg-white);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            width: 100%;
+        }
+
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+
+        .report-table th {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .report-table td {
+            padding: 0.75rem;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+
+        .report-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .report-table tr:hover td {
+            background-color: rgba(67, 97, 238, 0.03);
+        }
+
+        .report-table th, .report-table td {
+            width: auto;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .action-btn {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            color: var(--text-secondary);
+        }
+
+        .action-btn:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+            color: var(--border-color);
+            opacity: 0.7;
+        }
+
+        .empty-state h3 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 0.8125rem;
+            margin-bottom: 1rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-white);
+            padding: 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .close-modal:hover {
+            color: var(--primary-dark);
+        }
+
+        .report-details-section {
+            background-color: #f5f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd6fe;
+        }
+
+        .report-details-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #5b21b6;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .report-details-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .report-details-table th, .report-details-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd6fe;
+        }
+
+        .report-details-table th {
+            background-color: #ede9fe;
+            font-weight: 600;
+            color: #5b21b6;
+        }
+
+        .report-details-table tr:nth-child(even) {
+            background-color: #f5f3ff;
+        }
+
+        .report-details-table tr:hover {
+            background-color: #ede9fe;
+        }
+
+        #reportChart {
+            width: 100%;
+            max-height: 300px;
+            margin: 0 auto;
+            background-color: var(--bg-white);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        @media (max-width: 1200px) {
+            .main-content {
+                padding: 1.25rem;
+            }
+
+            .report-table th,
+            .report-table td {
+                padding: 0.5rem;
+                font-size: 0.75rem;
+            }
+
+            .action-btn {
+                width: 1.5rem;
+                height: 1.5rem;
+                font-size: 0.75rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .card {
+                border-radius: 0;
+                border-left: none;
+                border-right: none;
+            }
+
+            .report-table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .report-table th,
+            .report-table td {
+                white-space: nowrap;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+
+            .report-form {
+                flex-direction: column;
+                align-items: stretch;
+                padding: 1rem;
+            }
+
+            #reportChart {
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <% const currentPage = 'reports'; %>
+    <%- include('../partials/cashiersidebar', { currentPage }) %>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </h1>
+        </div>
+
+        <div class="report-form">
+            <label for="reportType">Report Type:</label>
+            <select id="reportType" name="reportType">
+                <option value="loanSummary" <%= reportData && reportData.title === 'Loan Summary Report' ? 'selected' : '' %>>Loan Summary</option>
+                <option value="paymentSummary" <%= reportData && reportData.title === 'Payment Summary Report' ? 'selected' : '' %>>Payment Summary</option>
+                <option value="overdueLoans" <%= reportData && reportData.title === 'Overdue Loans Report' ? 'selected' : '' %>>Overdue Loans</option>
+            </select>
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" name="startDate" value="<%= startDate || '' %>">
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" name="endDate" value="<%= endDate || '' %>">
+            <button onclick="generateReport()">Generate Report</button>
+            <% if (reportData && reportData.rows && reportData.rows.length > 0) { %>
+                <button class="export-btn" onclick="exportToCSV()">Export to CSV</button>
+            <% } %>
+        </div>
+
+        <div class="card">
+            <div id="reportOutput">
+                <% if (reportData && reportData.headers && reportData.rows && reportData.rows.length > 0) { %>
+                    <h2 class="report-title"><%= reportData.title %></h2>
+                    <div style="margin-bottom: 2rem;">
+                        <canvas id="reportChart" style="max-height: 300px;"></canvas>
+                    </div>
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <% reportData.headers.forEach(header => { %>
+                                    <th><%= header %></th>
+                                <% }) %>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reportTableBody">
+                            <% reportData.rows.forEach((row, index) => { %>
+                                <tr>
+                                    <% row.forEach(cell => { %>
+                                        <td><%= cell %></td>
+                                    <% }) %>
+                                    <td>
+                                        <div class="action-buttons">
+                                            <button class="action-btn" title="View Details" onclick="viewReportDetails('<%= reportData.title.split(' ')[0].toLowerCase() %>Summary', '<%= row[0] %>')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                <% } else { %>
+                    <div class="empty-state">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>No report generated</h3>
+                        <p>Select a report type and date range, then generate a report to view data.</p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Report Details Modal -->
+        <div class="modal" id="reportDetailsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title">Report Details</h2>
+                    <button class="close-modal" onclick="closeModal('reportDetailsModal')">&times;</button>
+                </div>
+                <div class="report-details-section">
+                    <div class="report-details-title">REPORT DETAILS</div>
+                    <div id="reportDetailsContainer">
+                        <p>Loading details...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown(clickedItem, dropdownId) {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                if (dropdown.id !== dropdownId) {
+                    dropdown.style.display = 'none';
+                    const parent = dropdown.previousElementSibling;
+                    if (parent) parent.classList.remove('active');
+                }
+            });
+            
+            const dropdown = document.getElementById(dropdownId);
+            const isShowing = dropdown.style.display === 'flex';
+            
+            dropdown.style.display = isShowing ? 'none' : 'flex';
+            clickedItem.classList.toggle('active', !isShowing);
+        }
+
+        function generateReport() {
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            let url = `/cashier/reports/generate?type=${reportType}`;
+            if (startDate && endDate) {
+                url += `&startDate=${startDate}&endDate=${endDate}`;
+            }
+            window.location.href = url;
+        }
+
+        async function viewReportDetails(reportType, id) {
+            const modal = document.getElementById('reportDetailsModal');
+            const container = document.getElementById('reportDetailsContainer');
+
+            try {
+                const response = await fetch(`/cashier/report-details/${reportType}/${id}`);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to fetch report details');
+                }
+
+                const table = document.createElement('table');
+                table.className = 'report-details-table';
+                const tbody = document.createElement('tbody');
+
+                data.details.forEach(detail => {
+                    const row = document.createElement('tr');
+                    const labelCell = document.createElement('th');
+                    labelCell.textContent = detail.label;
+                    const valueCell = document.createElement('td');
+                    valueCell.textContent = detail.value;
+                    row.appendChild(labelCell);
+                    row.appendChild(valueCell);
+                    tbody.appendChild(row);
+                });
+
+                table.appendChild(tbody);
+                container.innerHTML = '';
+                container.appendChild(table);
+
+                modal.style.display = 'flex';
+            } catch (error) {
+                alert('Error fetching report details: ' + error.message);
+                console.error('View Report Details error:', error);
+            }
+        }
+
+        function exportToCSV() {
+            const reportData = {
+                headers: <%- JSON.stringify(reportData ? reportData.headers : []) %>,
+                rows: <%- JSON.stringify(reportData ? reportData.rows : []) %>,
+                title: '<%- reportData ? reportData.title : "" %>'
+            };
+
+            if (!reportData.rows || reportData.rows.length === 0) {
+                alert('No data to export');
+                return;
+            }
+
+            const csvRows = [];
+            csvRows.push(reportData.headers.join(','));
+            reportData.rows.forEach(row => {
+                const escapedRow = row.map(cell => `"${cell.replace(/"/g, '""')}"`);
+                csvRows.push(escapedRow.join(','));
+            });
+
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `${reportData.title.replace(/ /g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.style.display = 'none';
+        }
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(event) {
+                if (event.target === this) {
+                    closeModal(this.id);
+                }
+            });
+        });
+
+        // Load Chart.js
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        script.async = true;
+        document.head.appendChild(script);
+
+        script.onload = function () {
+            const reportData = {
+                headers: <%- JSON.stringify(reportData ? reportData.headers : []) %>,
+                rows: <%- JSON.stringify(reportData ? reportData.rows : []) %>,
+                title: '<%- reportData ? reportData.title : "" %>'
+            };
+
+            if (reportData.rows && reportData.rows.length > 0) {
+                const ctx = document.getElementById('reportChart').getContext('2d');
+                let labels = [];
+                let data = [];
+                let label = '';
+                const colorPalette = [
+                    { bg: 'rgba(67, 97, 238, 0.6)', border: 'rgba(67, 97, 238, 1)' }, // Blue
+                    { bg: 'rgba(76, 201, 240, 0.6)', border: 'rgba(76, 201, 240, 1)' }, // Cyan
+                    { bg: 'rgba(247, 37, 133, 0.6)', border: 'rgba(247, 37, 133, 1)' }, // Pink
+                    { bg: 'rgba(6, 214, 160, 0.6)', border: 'rgba(6, 214, 160, 1)' }, // Green
+                    { bg: 'rgba(114, 9, 183, 0.6)', border: 'rgba(114, 9, 183, 1)' }, // Purple
+                    { bg: 'rgba(244, 140, 6, 0.6)', border: 'rgba(244, 140, 6, 1)' } // Orange
+                ];
+
+                // Create gradient for each color
+                const createGradient = (color) => {
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+                    gradient.addColorStop(0, color.replace('0.6', '0.8'));
+                    gradient.addColorStop(1, color.replace('0.6', '0.3'));
+                    return gradient;
+                };
+
+                // Assign colors to each member
+                const backgroundColors = reportData.rows.map((_, index) => 
+                    createGradient(colorPalette[index % colorPalette.length].bg)
+                );
+                const borderColors = reportData.rows.map((_, index) => 
+                    colorPalette[index % colorPalette.length].border
+                );
+
+                // Customize chart data based on report type
+                if (reportData.title.includes('Loan Summary')) {
+                    labels = reportData.rows.map(row => row[1] || 'Unknown'); // Customer Name
+                    data = reportData.rows.map(row => parseFloat(row[2]) || 0); // Loan Amount
+                    label = 'Loan Amount';
+                } else if (reportData.title.includes('Payment Summary')) {
+                    labels = reportData.rows.map(row => row[1] || 'Unknown'); // Payment Date or Name
+                    data = reportData.rows.map(row => parseFloat(row[2]) || 0); // Payment Amount
+                    label = 'Payment Amount';
+                } else if (reportData.title.includes('Overdue Loans')) {
+                    labels = reportData.rows.map(row => row[1] || 'Unknown'); // Customer Name
+                    data = reportData.rows.map(row => parseFloat(row[3]) || 0); // Overdue Amount
+                    label = 'Overdue Amount';
+                }
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: label,
+                            data: data,
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: label,
+                                    color: '#2b2d42',
+                                    font: { size: 14 }
+                                },
+                                grid: { color: '#e9ecef' },
+                                ticks: { color: '#2b2d42' }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Members',
+                                    color: '#2b2d42',
+                                    font: { size: 14 }
+                                },
+                                grid: { display: false },
+                                ticks: { color: '#2b2d42' }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                labels: {
+                                    color: '#2b2d42',
+                                    font: { size: 14, weight: '500' }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#ffffff',
+                                titleColor: '#2b2d42',
+                                bodyColor: '#2b2d42',
+                                borderColor: '#e9ecef',
+                                borderWidth: 1,
+                                titleFont: { size: 14 },
+                                bodyFont: { size: 12 }
+                            }
+                        },
+                        animation: {
+                            duration: 1500,
+                            easing: 'easeInOutQuart'
+                        },
+                        layout: {
+                            padding: 20
+                        }
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+</html>
