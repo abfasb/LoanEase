@@ -1,8 +1,8 @@
 const bcrypt = require('bcrypt');
 const Member = require('../models/Member'); // Ensure this model has the correct methods
 const db = require("../config/db");
-const SalaryBonusLoan = require('../models/SalaryBonusLoan');
-const RegularAgriculturalLoan = require('../models/RegularAgriculturalLoan');
+const SalaryBonusLoan = require('../models/salaryBonusLoan');
+const RegularAgriculturalLoan = require('../models/regularAgriculturalLoan');
 
 // Render the change password page
 exports.renderChangePasswordPage = (req, res) => {
