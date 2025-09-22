@@ -89,7 +89,6 @@ exports.submitRegularLoan = (req, res) => {
         return res.json({ success: true, message: "Loan application submitted successfully!" });
     });
 };
-
 // Submit Salary/Bonuses Loan
 exports.submitSalaryBonusLoan = (req, res) => {
     console.log("📌 Received Data:", req.body);
@@ -117,6 +116,16 @@ exports.submitSalaryBonusLoan = (req, res) => {
 
     const application_date = date;
 
+    // Fix loan_type handling - it might come as an array or undefined
+    let processedLoanType = loan_type;
+    if (Array.isArray(loan_type)) {
+        // If multiple checkboxes somehow got selected, take the first one
+        processedLoanType = loan_type[0];
+    } else if (!loan_type) {
+        // If no loan type is selected, set a default or handle the error
+        processedLoanType = null;
+    }
+
     const missingFields = [];
     if (!cb_number) missingFields.push("cb_number");
     if (!application_no) missingFields.push("application_no");
@@ -126,7 +135,7 @@ exports.submitSalaryBonusLoan = (req, res) => {
     if (!position) missingFields.push("position");
     if (!address) missingFields.push("address");
     if (!contact_no) missingFields.push("contact_no");
-    if (!loan_type) missingFields.push("loan_type");
+    if (!processedLoanType) missingFields.push("loan_type");
     if (!loan_amount) missingFields.push("loan_amount");
 
     if (missingFields.length > 0) {
@@ -155,7 +164,7 @@ exports.submitSalaryBonusLoan = (req, res) => {
         net_take_home_pay || null,
         spouse_name || null,
         contact_no,
-        loan_type,
+        processedLoanType,
         loan_amount
     ], (err, result) => {
         if (err) {
