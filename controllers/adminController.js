@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const User = require('../models/User');
 const Member = require('../models/Member');
-const Loan = require('../models/Loan');
+const Loan = require('../models/loan');
 const db = require('../config/db');
 
 // Helper function to validate year format (YYYY or null)
