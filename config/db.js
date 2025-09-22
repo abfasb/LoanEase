@@ -2,10 +2,11 @@ const mysql = require('mysql2');
 
 // Setup the MySQL connection
 const db = mysql.createConnection({
-    host: 'localhost',  // Ensure this is correct
-    user: 'root',       // Ensure this is correct
-    password: '',       // Your MySQL password
-    database: 'capstone1' // Your database name
+    host: 'yamabiko.proxy.rlwy.net',
+    user: 'root',
+    password: 'dlIydvXIAPyIScWoythUitzmBDVXGQJq',
+    database: 'railway',
+    port: 58939
 });
 
 // Test the connection
