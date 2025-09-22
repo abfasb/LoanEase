@@ -1,5 +1,5 @@
 const db = require('../config/db');
-const Loan = require('../models/Loan');
+const Loan = require('../models/loan');
 const Payment = require('../models/LoanPayment');
 
 // Formatting utilities
