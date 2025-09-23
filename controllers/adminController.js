@@ -735,13 +735,19 @@ exports.renderLoanSalaryBonuses = async (req, res) => {
         });
     }
 };
-
 exports.getRegularLoans = async (req, res) => {
     try {
         if (!req.session?.user || req.session.user.role !== 'admin') {
             console.log('Unauthorized access to regular loans, redirecting to login');
             return res.redirect('/login');
         }
+
+        // Prevent caching to ensure fresh data
+        res.set({
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        });
 
         const loans = await new Promise((resolve, reject) => {
             Loan.getAllRegularLoans((err, loans) => {
@@ -750,12 +756,20 @@ exports.getRegularLoans = async (req, res) => {
             });
         });
 
-        res.render('admin/regular_agricultural_loans', { loans, error: null });
+        // Add timestamp to force browser refresh
+        const timestamp = Date.now();
+        
+        res.render('admin/regular_agricultural_loans', { 
+            loans, 
+            error: null,
+            timestamp // This can be used in template if needed
+        });
     } catch (error) {
         console.error('Error fetching regular loans:', error);
         res.render('admin/regular_agricultural_loans', {
             loans: [],
-            error: `Server error: ${error.message}`
+            error: `Server error: ${error.message}`,
+            timestamp: Date.now()
         });
     }
 };

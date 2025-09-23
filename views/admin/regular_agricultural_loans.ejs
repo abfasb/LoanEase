@@ -410,6 +410,65 @@
     </div>
 
     <script>
+
+        // Add this to your existing script section
+function assessRisk(applicationNo, loanType, buttonElement) {
+    buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assessing...';
+    buttonElement.disabled = true;
+    
+    fetch(`/api/risk/${loanType}/${applicationNo}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert('Error assessing risk: ' + data.error);
+            buttonElement.innerHTML = 'Assess Risk';
+            buttonElement.disabled = false;
+            return;
+        }
+        
+        const td = buttonElement.closest('td');
+        td.innerHTML = `<span class="risk-badge risk-${data.riskLevel.toLowerCase()}">
+                           ${data.riskLevel}
+                        </span>`;
+        
+        // Add this line to refresh the page after 1 second
+        setTimeout(() => {
+            window.location.reload();
+        }, 1000);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        buttonElement.innerHTML = 'Assess Risk';
+        buttonElement.disabled = false;
+        alert('Failed to assess risk');
+    });
+}
+
+// Add function to refresh data without full page reload
+function refreshLoanData() {
+    fetch(window.location.pathname)
+    .then(response => response.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const newDoc = parser.parseFromString(html, 'text/html');
+        const newTableBody = newDoc.querySelector('#loansTableBody');
+        
+        if (newTableBody) {
+            document.querySelector('#loansTableBody').innerHTML = newTableBody.innerHTML;
+            document.getElementById('totalEntries').textContent = 
+                document.querySelectorAll('#loansTableBody tr').length;
+        }
+    })
+    .catch(error => console.error('Error refreshing data:', error));
+}
+
+// Auto-refresh every 30 seconds
+setInterval(refreshLoanData, 30000);
         function redirectToLoanPage(cbNumber) {
             if (!cbNumber) {
                 alert('Error: Missing CB Number');

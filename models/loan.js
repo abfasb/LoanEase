@@ -101,7 +101,7 @@ class Loan {
         const query = `
             UPDATE salary_bonuses_loans 
             SET application_status = ?, 
-                last_updated = CURRENT_TIMESTAMP 
+                last_updated = NOW() 
             WHERE cb_number = ?
         `;
         db.query(query, [status, cbNumber], callback);
