@@ -606,54 +606,55 @@
 
     // Collect all form data with correct field names matching your database
     function collectFormData() {
-        const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
-        const loanTermMonths = loanAmount >= 100000 ? 24 : 12;
-        const monthlyPrincipal = Math.round(loanAmount / loanTermMonths);
-        const interestRate = 0.03;
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() + 30); // First payment due in 30 days
+    const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+    const loanTermMonths = loanAmount >= 100000 ? 24 : 12;
+    const monthlyPrincipal = Math.round(loanAmount / loanTermMonths);
+    const interestRate = 0.03;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 30); // First payment due in 30 days
+    
+    let remainingBalance = loanAmount;
+    const paymentSchedule = [];
+    
+    for (let month = 0; month < loanTermMonths; month++) {
+        const interest = Math.round(remainingBalance * interestRate);
+        const totalPayment = monthlyPrincipal + interest;
+        const dueDate = new Date(startDate);
+        dueDate.setMonth(startDate.getMonth() + month);
         
-        let remainingBalance = loanAmount;
-        const paymentSchedule = [];
+        paymentSchedule.push({
+            due_date: dueDate.toISOString().split('T')[0], // Store date in YYYY-MM-DD format
+            principal_amount: monthlyPrincipal,
+            interest_amount: interest,
+            total_payment: totalPayment,
+            remaining_balance: Math.max(0, remainingBalance - monthlyPrincipal)
+        });
         
-        for (let month = 0; month < loanTermMonths; month++) {
-            const interest = Math.round(remainingBalance * interestRate);
-            const totalPayment = monthlyPrincipal + interest;
-            const dueDate = new Date(startDate);
-            dueDate.setMonth(startDate.getMonth() + month);
-            
-            paymentSchedule.push({
-                due_date: dueDate.toISOString().split('T')[0], // Store date in YYYY-MM-DD format
-                principal_amount: monthlyPrincipal,
-                interest_amount: interest,
-                total_payment: totalPayment,
-                remaining_balance: Math.max(0, remainingBalance - monthlyPrincipal)
-            });
-            
-            remainingBalance = Math.max(0, remainingBalance - monthlyPrincipal);
-        }
-        
-        return {
-            cb_number: document.getElementById('cbNumber').value,
-            property_value: parseFloat(document.getElementById('propertyValue').value) || 0,
-            max_loan_amount: parseFloat(document.getElementById('maxLoanAmount').value) || 0,
-            loan_application_type: document.querySelector('input[name="loanApplicationType"]:checked').value,
-            loan_amount: loanAmount,
-            previous_balance: parseFloat(document.getElementById('previousBalance').value) || 0,
-            new_balance: parseFloat(document.getElementById('newBalance').value) || 0,
-            service_fee: parseFloat(document.getElementById('serviceFee').value) || 0,
-            processing_fee: parseFloat(document.getElementById('processingFee').value) || 0,
-            total_deductions: parseFloat(document.getElementById('totalDeductions').value) || 0,
-            total_loan_received: parseFloat(document.getElementById('totalLoan').value) || 0,
-            member_fee: parseFloat(document.getElementById('memberFee').value) || 0,
-            share_capital: parseFloat(document.getElementById('shareCapital').value) || 0,
-            bayanihan_savings: parseFloat(document.getElementById('bayanihanSavings').value) || 0,
-            advance_interest: parseFloat(document.getElementById('advanceInterest').value) || 0,
-            total_or_amount: parseFloat(document.getElementById('totalOrAmount').value) || 0,
-            take_home_amount: parseFloat(document.getElementById('takeHomeAmount').value) || 0,
-            payment_schedule: paymentSchedule
-        };
+        remainingBalance = Math.max(0, remainingBalance - monthlyPrincipal);
     }
+    
+    return {
+        cb_number: document.getElementById('cbNumber').value,
+        property_value: parseFloat(document.getElementById('propertyValue').value) || 0,
+        max_loan_amount: parseFloat(document.getElementById('maxLoanAmount').value) || 0,
+        loan_application_type: document.querySelector('input[name="loanApplicationType"]:checked').value,
+        loan_amount: loanAmount,
+        previous_balance: parseFloat(document.getElementById('previousBalance').value) || 0,
+        new_balance: parseFloat(document.getElementById('newBalance').value) || 0,
+        service_fee: parseFloat(document.getElementById('serviceFee').value) || 0,
+        processing_fee: parseFloat(document.getElementById('processingFee').value) || 0,
+        total_deductions: parseFloat(document.getElementById('totalDeductions').value) || 0,
+        total_loan_received: parseFloat(document.getElementById('totalLoan').value) || 0,
+        member_fee: parseFloat(document.getElementById('memberFee').value) || 0,
+        share_capital: parseFloat(document.getElementById('shareCapital').value) || 0,
+        bayanihan_savings: parseFloat(document.getElementById('bayanihanSavings').value) || 0,
+        advance_interest: parseFloat(document.getElementById('advanceInterest').value) || 0,
+        total_or_amount: parseFloat(document.getElementById('totalOrAmount').value) || 0,
+        take_home_amount: parseFloat(document.getElementById('takeHomeAmount').value) || 0,
+        payment_schedule: paymentSchedule,
+        submit: true 
+    };
+}
 
     async function submitForm() {
         if (!calculateAll()) return;

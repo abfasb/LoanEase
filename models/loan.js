@@ -107,7 +107,6 @@ class Loan {
         db.query(query, [status, cbNumber], callback);
     }
 
-    // Fetch all Regular Agricultural Loans
     static getAllRegularLoans(callback) {
         const query = 'SELECT * FROM regular_agricultural_loans';
         db.query(query, (err, results) => {
@@ -119,7 +118,6 @@ class Loan {
         });
     }
 
-    // Fetch all Regular Agricultural Loan Releases
     static getAllRegularLoanReleases(callback) {
         const query = `
             SELECT 
