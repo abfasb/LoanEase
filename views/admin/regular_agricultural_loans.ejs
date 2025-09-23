@@ -335,23 +335,23 @@
                                 <td class="cb-number"><%= loan.cb_number %></td>
                                 <td><%= loan.application_no %></td>
                                 <td><%= new Date(loan.application_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-                                <td><%= loan.spouse_name %></td>
-                                <td><%= loan.member_address %></td>
-                                <td><%= loan.contact_number %></td>
-                                <td><%= loan.account_number %></td>
-                                <td><%= loan.coop_id_number %></td>
-                                <td><%= loan.loan_type %></td>
-                                <td>₱<%= loan.loan_amount.toLocaleString() %></td>
-                                <td>₱<%= loan.annual_income.toLocaleString() %></td>
-                                <td><%= loan.income_source %></td>
-                                <td><%= loan.collateral %></td>
-                                <td><%= loan.loan_purpose %></td>
-                                <td>₱<%= loan.paid_up_capital.toLocaleString() %></td>
-                                <td>₱<%= loan.previous_loan_amount.toLocaleString() %></td>
-                                <td>₱<%= loan.outstanding_balance.toLocaleString() %></td>
-                                <td><%= loan.cbu_status %></td>
-                                <td><%= loan.borrower_type %></td>
-                                <td><%= loan.loan_status %></td>
+                                <td><%= loan.spouse_name || '' %></td>
+                                <td><%= loan.member_address || '' %></td>
+                                <td><%= loan.contact_number || '' %></td>
+                                <td><%= loan.account_number || '' %></td>
+                                <td><%= loan.coop_id_number || '' %></td>
+                                <td><%= loan.loan_type || '' %></td>
+                                <td>₱<%= (loan.loan_amount || 0).toLocaleString() %></td>
+                                <td>₱<%= (loan.annual_income || 0).toLocaleString() %></td>
+                                <td><%= loan.income_source || '' %></td>
+                                <td><%= loan.collateral || '' %></td>
+                                <td><%= loan.loan_purpose || '' %></td>
+                                <td>₱<%= (loan.paid_up_capital || 0).toLocaleString() %></td>
+                                <td>₱<%= (loan.previous_loan_amount || 0).toLocaleString() %></td>
+                                <td>₱<%= (loan.outstanding_balance || 0).toLocaleString() %></td>
+                                <td><%= loan.cbu_status || '' %></td>
+                                <td><%= loan.borrower_type || '' %></td>
+                                <td><%= loan.loan_status || '' %></td>
                                 <td>
                                     <% if (loan.risk_level) { %>
                                         <span class="risk-badge risk-<%= loan.risk_level.toLowerCase() %>">
@@ -366,14 +366,14 @@
                                 </td>
                                 <td>
                                     <% let statusClass = ''; %>
-                                    <% if (loan.application_status.toLowerCase() === 'approved') { %>
+                                    <% if (loan.application_status && loan.application_status.toLowerCase() === 'approved') { %>
                                         <% statusClass = 'status-approved'; %>
-                                    <% } else if (loan.application_status.toLowerCase() === 'pending') { %>
+                                    <% } else if (loan.application_status && loan.application_status.toLowerCase() === 'pending') { %>
                                         <% statusClass = 'status-pending'; %>
-                                    <% } else if (loan.application_status.toLowerCase() === 'rejected') { %>
+                                    <% } else if (loan.application_status && loan.application_status.toLowerCase() === 'rejected') { %>
                                         <% statusClass = 'status-rejected'; %>
                                     <% } %>
-                                    <span class="status-badge <%= statusClass %>"><%= loan.application_status %></span>
+                                    <span class="status-badge <%= statusClass %>"><%= loan.application_status || 'N/A' %></span>
                                 </td>
                                 <td><%= new Date(loan.date_created).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
                                 <td><%= new Date(loan.last_updated).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
