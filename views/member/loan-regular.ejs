@@ -1,371 +1,335 @@
-<style>
-    :root {
-        --primary-color: #2c5f9e;
-        --secondary-color: #4a90e2;
-        --accent-color: #e74c3c;
-        --light-gray: #f8f9fa;
-        --medium-gray: #e9ecef;
-        --dark-gray: #495057;
-        --success-color: #28a745;
-        --error-color: #dc3545;
-    }
-
-    body {
-        font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: var(--light-gray);
-        color: #333;
-        line-height: 1.6;
-    }
-
-    .main-content {
-        margin-left: 280px;
-        width: calc(100% - 280px);
-        padding: 40px;
-        background-color: #f8fafc;
-    }
-
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 40px;
-    }
-
-    .welcome-section h1 {
-        font-size: 32px;
-        font-weight: 700;
-        color: #2c3e50;
-        letter-spacing: -0.5px;
-        margin-bottom: 8px;
-    }
-
-    .welcome-section p {
-        color: #7f8c8d;
-        font-size: 16px;
-        font-weight: 400;
-        line-height: 1.6;
-    }
-
-    .date-section {
-        background: #fff;
-        padding: 12px 20px;
-        border-radius: 10px;
-        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-        font-size: 15px;
-        font-weight: 500;
-        color: #555;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .date-section i {
-        color: #3498db;
-    }
-
-    .loan-container {
-        background: #fff;
-        border-radius: 16px;
-        padding: 40px;
-        box-shadow: 0 5px 30px rgba(0, 0, 0, 0.05);
-        margin-bottom: 40px;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .section-header {
-        margin-bottom: 40px;
-        border-bottom: 1px solid #ecf0f1;
-        padding-bottom: 20px;
-    }
-
-    .section-title {
-        font-size: 26px;
-        font-weight: 700;
-        color: #2c3e50;
-        letter-spacing: -0.3px;
-        position: relative;
-        padding-bottom: 10px;
-    }
-
-    .section-title::after {
-        content: '';
-        position: absolute;
-        bottom: -1px;
-        left: 0;
-        width: 60px;
-        height: 3px;
-        background: #3498db;
-        border-radius: 3px;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-    }
-
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-
-    label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 0.5rem;
-        color: #2c3e50;
-        font-size: 0.9rem;
-    }
-
-    input, select, textarea {
-        width: 100%;
-        padding: 0.75rem 1rem;
-        border: 1px solid #e0e6ed;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        transition: all 0.3s ease;
-        background-color: #fff;
-    }
-
-    input:focus, select:focus, textarea:focus {
-        outline: none;
-        border-color: #3498db;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-    }
-
-    textarea {
-        min-height: 120px;
-        resize: vertical;
-    }
-
-    .checkbox-group {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin: 0.75rem 0;
-    }
-
-    .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .checkbox-item input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
-        accent-color: #3498db;
-    }
-
-    .checkbox-item label {
-        margin-bottom: 0;
-        color: #2c3e50;
-        font-size: 0.9rem;
-    }
-
-    .submit-button {
-        background: linear-gradient(135deg, #3498db, #2ecc71);
-        color: white;
-        border: none;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-        width: 100%;
-        margin-top: 1.5rem;
-    }
-
-    .submit-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 7px 20px rgba(52, 152, 219, 0.4);
-    }
-
-    .notification {
-        display: none;
-        padding: 1rem;
-        border-radius: 8px;
-        text-align: center;
-        font-size: 0.9rem;
-        margin-bottom: 1.5rem;
-        font-weight: 500;
-    }
-
-    .notification.success {
-        background-color: #e3f9e5;
-        color: #166534;
-        border: 1px solid #bbf7d0;
-    }
-
-    .notification.error {
-        background-color: #fee2e2;
-        color: #991b1b;
-        border: 1px solid #fecaca;
-    }
-
-    .print-button {
-        background: #2c3e50;
-        color: white;
-        border: none;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        width: 100%;
-        margin-top: 1.5rem;
-        display: none;
-    }
-
-    .print-button:hover {
-        background: #1a252f;
-    }
-
-    /* Print styles */
-    .printable-area {
-        display: none;
-        margin-top: 2rem;
-        padding: 2rem;
-        border: 1px solid #e0e6ed;
-        background-color: #fff;
-        border-radius: 16px;
-    }
-
-    @media print {
-        body * {
-            visibility: hidden;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regular/Agricultural Loan Application</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c5f9e;
+            --secondary-color: #4a90e2;
+            --accent-color: #e74c3c;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #495057;
+            --success-color: #28a745;
+            --error-color: #dc3545;
         }
-        .printable-area, .printable-area * {
-            visibility: visible;
-        }
-        .printable-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            padding: 1rem;
-            border: none;
-        }
-        .no-print {
-            display: none !important;
-        }
-    }
 
-    /* Print form styles */
-    .print-header {
-        text-align: center;
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid #ddd;
-        padding-bottom: 1rem;
-    }
-    
-    .print-header img {
-        width: 60px;
-        height: auto;
-        margin-bottom: 0.5rem;
-    }
-    
-    .print-header h2 {
-        font-size: 1.25rem;
-        margin: 0.5rem 0;
-        font-weight: bold;
-        color: #2c3e50;
-    }
-    
-    .print-header p {
-        font-size: 0.75rem;
-        margin: 0.25rem 0;
-        color: #7f8c8d;
-    }
-    
-    .print-field {
-        display: flex;
-        align-items: center;
-        margin-bottom: 0.75rem;
-    }
-    
-    .print-label {
-        font-weight: bold;
-        margin-right: 0.5rem;
-        font-size: 0.8rem;
-        min-width: 120px;
-        color: #2c3e50;
-    }
-    
-    .print-value {
-        border-bottom: 1px solid #ddd;
-        min-width: 200px;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.8rem;
-        flex-grow: 1;
-    }
-    
-    .checkbox-print {
-        display: inline-block;
-        width: 15px;
-        height: 15px;
-        border: 1px solid #2c3e50;
-        margin-right: 0.5rem;
-        text-align: center;
-        font-size: 0.75rem;
-        line-height: 15px;
-    }
-    
-    .signature-line {
-        border-top: 1px solid #2c3e50;
-        width: 200px;
-        margin: 2rem auto;
-        text-align: center;
-        padding-top: 0.5rem;
-    }
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            color: #333;
+            line-height: 1.6;
+        }
 
-    @media (max-width: 992px) {
         .main-content {
-            padding: 30px;
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            padding: 40px;
+            background-color: #f8fafc;
         }
-        
-        .loan-container {
-            padding: 30px;
-        }
-        
-        .form-grid {
-            grid-template-columns: 1fr;
-        }
-    }
 
-    @media (max-width: 768px) {
-        .main-content {
-            margin-left: 0;
-            width: 100%;
-            padding: 25px;
-        }
-        
         .dashboard-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
         }
-        
-        .section-title {
-            font-size: 22px;
-        }
-        
-        .checkbox-group {
-            flex-direction: column;
-            gap: 0.75rem;
-        }
-    }
-</style>
 
+        .welcome-section h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-section p {
+            color: #7f8c8d;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .date-section {
+            background: #fff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+            font-size: 15px;
+            font-weight: 500;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .date-section i {
+            color: #3498db;
+        }
+
+        .loan-container {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+            border-bottom: 1px solid #ecf0f1;
+            padding-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #2c3e50;
+            letter-spacing: -0.3px;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: #3498db;
+            border-radius: 3px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            font-size: 0.9rem;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e0e6ed;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, #3498db, #2ecc71);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        .notification {
+            display: none;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            font-weight: 500;
+        }
+
+        .notification.success {
+            background-color: #e3f9e5;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .notification.error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .print-button {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .print-button:hover {
+            background: #1a252f;
+        }
+
+        .printable-area {
+            display: none;
+            margin-top: 2rem;
+            padding: 2rem;
+            border: 1px solid #e0e6ed;
+            background-color: #fff;
+            border-radius: 16px;
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .printable-area,
+            .printable-area * {
+                visibility: visible;
+            }
+
+            .printable-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                padding: 1rem;
+                border: none;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 1rem;
+        }
+
+        .print-header h2 {
+            font-size: 1.25rem;
+            margin: 0.5rem 0;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .print-header p {
+            font-size: 0.75rem;
+            margin: 0.25rem 0;
+            color: #7f8c8d;
+        }
+
+        .print-field {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .print-label {
+            font-weight: bold;
+            margin-right: 0.5rem;
+            font-size: 0.8rem;
+            min-width: 120px;
+            color: #2c3e50;
+        }
+
+        .print-value {
+            border-bottom: 1px solid #ddd;
+            min-width: 200px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            flex-grow: 1;
+        }
+
+        .signature-line {
+            border-top: 1px solid #2c3e50;
+            width: 200px;
+            margin: 2rem auto;
+            text-align: center;
+            padding-top: 0.5rem;
+        }
+
+        @media (max-width: 992px) {
+            .main-content {
+                padding: 30px;
+            }
+
+            .loan-container {
+                padding: 30px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 25px;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .section-title {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
 <body>
-    <!-- Sidebar will be included from the partial -->
     <%- include('../partials/membersidebar') %>
-    
     <div class="main-content">
         <div class="dashboard-header">
             <div class="welcome-section">
@@ -374,143 +338,104 @@
             </div>
             <div class="date-section">
                 <i class="fas fa-calendar-alt"></i>
-                <script>
-                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                    document.write(new Date().toLocaleDateString('en-US', options));
-                </script>
+                <span id="currentDate"></span>
             </div>
         </div>
-        
         <div class="loan-container">
             <div class="section-header">
                 <div class="section-title">Application Details</div>
             </div>
-            
             <div id="notification" class="notification"></div>
-            
             <form id="loanForm" action="/member/loan-regular" method="POST">
+                <input type="hidden" name="loan_type" value="Agricultural">
                 <div class="form-grid">
-                    <!-- Left Column -->
                     <div>
                         <div class="form-group">
                             <label for="cb_number">CB Number</label>
                             <input type="text" id="cb_number" name="cb_number" required>
                         </div>
-                        
                         <div class="form-group">
                             <label for="application_no">Application No</label>
                             <input type="text" id="application_no" name="application_no" required>
                         </div>
-
                         <div class="form-group">
                             <label for="date_of_application">Date of Application</label>
-                            <input type="date" id="date_of_application" name="date_of_application" required>    
+                            <input type="date" id="date_of_application" name="date_of_application" required>
                         </div>
-
                         <div class="form-group">
-                            <label for="member_name">Member Name</label>
-                            <input type="text" id="member_name" name="member_name" required>
+                            <label for="first_name">First Name</label>
+                            <input type="text" id="first_name" name="first_name" required>
                         </div>
-                        
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" required>
+                        </div>
                         <div class="form-group">
                             <label for="spouse_name">Name of Spouse</label>
                             <input type="text" id="spouse_name" name="spouse_name">
                         </div>
-
                         <div class="form-group">
                             <label for="address">Address</label>
                             <textarea id="address" name="address" required></textarea>
                         </div>
                     </div>
-
-                    <!-- Right Column -->
                     <div>
                         <div class="form-group">
                             <label for="contact_no">Contact No</label>
                             <input type="text" id="contact_no" name="contact_no" required>
                         </div>
-                        
                         <div class="form-group">
                             <label for="account_no">Account No</label>
                             <input type="text" id="account_no" name="account_no">
                         </div>
-                        
                         <div class="form-group">
                             <label for="coop_id">Coop ID No</label>
                             <input type="text" id="coop_id" name="coop_id">
                         </div>
-
                         <div class="form-group">
                             <label for="loan_amount">Amount of Loan Application</label>
                             <input type="number" step="0.01" id="loan_amount" name="loan_amount" required>
                         </div>
-
                         <div class="form-group">
                             <label for="annual_income">Annual Income</label>
                             <input type="number" step="0.01" id="annual_income" name="annual_income">
                         </div>
                     </div>
                 </div>
-                
-                <!-- Full Width Fields -->
                 <div class="form-group">
                     <label for="source_of_income">Source of Income</label>
                     <input type="text" id="source_of_income" name="source_of_income">
                 </div>
-                
                 <div class="form-group">
                     <label for="security_offered">Security Offered</label>
                     <input type="text" id="security_offered" name="security_offered">
                 </div>
-                
                 <div class="form-group">
-                    <label>Purpose of Loan</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="purpose_emergency" name="purpose" value="Emergency">
-                            <label for="purpose_emergency">Emergency</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="purpose_providential" name="purpose" value="Providential">
-                            <label for="purpose_providential">Providential</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="purpose_agricultural" name="purpose" value="Agricultural">
-                            <label for="purpose_agricultural">Agricultural</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="purpose_farm_equipment" name="purpose" value="Farm Equipment">
-                            <label for="purpose_farm_equipment">Farm Equipment</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="purpose_crop_production" name="purpose" value="Crop Production">
-                            <label for="purpose_crop_production">Crop Production</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="purpose_others" name="purpose" value="Others">
-                            <label for="purpose_others">Others</label>
-                        </div>
-                    </div>
+                    <label for="loan_purpose">Purpose of Loan</label>
+                    <select id="loan_purpose" name="loan_purpose" required>
+                        <option value="Emergency">Emergency</option>
+                        <option value="Providential">Providential</option>
+                        <option value="Agricultural">Agricultural</option>
+                        <option value="Farm Equipment">Farm Equipment</option>
+                        <option value="Crop Production">Crop Production</option>
+                        <option value="Others">Others</option>
+                    </select>
                 </div>
-                
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="paid_up_capital">Member's Paid-up Capital</label>
                         <input type="number" step="0.01" id="paid_up_capital" name="paid_up_capital">
                     </div>
-                    
                     <div class="form-group">
                         <label for="previous_loan">Previous Loan</label>
                         <input type="number" step="0.01" id="previous_loan" name="previous_loan">
                     </div>
                 </div>
-                
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="outstanding_balance">Outstanding Balance</label>
                         <input type="number" step="0.01" id="outstanding_balance" name="outstanding_balance">
                     </div>
-                    
                     <div class="form-group">
                         <label for="cbu_status">CBU Status</label>
                         <select id="cbu_status" name="cbu_status" required>
@@ -519,7 +444,6 @@
                         </select>
                     </div>
                 </div>
-                
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="borrower_category">Borrower Category</label>
@@ -530,7 +454,6 @@
                             <option value="Old Borrower">Old Borrower</option>
                         </select>
                     </div>
-                    
                     <div class="form-group">
                         <label for="loan_balance_status">Loan Balance Status</label>
                         <select id="loan_balance_status" name="loan_balance_status" required>
@@ -542,11 +465,8 @@
                         </select>
                     </div>
                 </div>
-                
                 <button type="submit" class="submit-button">Submit Application</button>
             </form>
-            
-            <!-- Printable Area -->
             <div id="printableArea" class="printable-area">
                 <div class="print-header">
                     <h2>BONGABONG COCONUT FARMERS MULTI-PURPOSE COOPERATIVE</h2>
@@ -557,11 +477,9 @@
                     <p>Tel. No.: (043) 748-9765/C.P. No. 09392333818</p>
                     <p>E-mail Add: bocofamcobranchc@gmail.com</p>
                 </div>
-                
                 <div style="text-align: center; font-weight: bold; margin: 15px 0; font-size: 14px; text-decoration: underline;">
                     LOAN APPLICATION FORM FOR MEMBERS
                 </div>
-                
                 <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
                     <div style="width: 48%;">
                         <div class="print-field">
@@ -576,7 +494,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
                     <div style="width: 48%;">
                         <div class="print-field">
@@ -591,7 +508,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div style="margin-bottom: 15px;">
                     <div style="font-weight: bold; margin-bottom: 10px;">I. Name of Member-Borrower:</div>
                     <div class="print-field">
@@ -610,40 +526,12 @@
                         <span class="print-value" id="printContactNo" style="min-width: 200px;"></span>
                     </div>
                 </div>
-                
                 <div style="margin-bottom: 15px;">
                     <div style="font-weight: bold; margin-bottom: 10px;">II. Purpose Loan:</div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <div style="width: 48%;">
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkEmergency">( )</span>
-                                <span>Emergency</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkProvidential">( )</span>
-                                <span>Providential</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkAgricultural">( )</span>
-                                <span>Agricultural</span>
-                            </div>
-                        </div>
-                        <div style="width: 48%;">
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkFarmEquipment">( )</span>
-                                <span>Farm Equipment</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkCropProduction">( )</span>
-                                <span>Crop Production</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkOthers">( )</span>
-                                <span>Others</span>
-                            </div>
-                        </div>
+                    <div class="print-field">
+                        <span class="print-label">Purpose:</span>
+                        <span class="print-value" id="printLoanPurpose" style="min-width: 100%;"></span>
                     </div>
-                    
                     <div style="margin-top: 10px;">
                         <div style="font-weight: bold; margin: 10px 0;">Security Offered:</div>
                         <div class="print-field">
@@ -651,7 +539,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div style="margin-bottom: 15px;">
                     <div style="font-weight: bold; margin-bottom: 10px;">III. Amount of Loan Application:</div>
                     <div class="print-field">
@@ -659,7 +546,6 @@
                         <span class="print-value" id="printLoanAmount" style="min-width: 300px;"></span>
                     </div>
                     <div style="font-weight: bold; margin: 10px 0;">IV. Sketch Map (use separate sheet if necessary)</div>
-                    
                     <div style="display: flex; justify-content: space-between; margin-top: 15px;">
                         <div style="width: 48%;">
                             <div style="font-weight: bold; margin-bottom: 5px;">Annual Income:</div>
@@ -675,21 +561,17 @@
                         </div>
                     </div>
                 </div>
-                
                 <div style="display: flex; justify-content: space-between; margin: 20px 0;">
                     <div class="signature-line">Signature of Borrower</div>
                     <div class="signature-line">Signature of Spouse</div>
                 </div>
-                
                 <div style="text-align: center; margin: 20px 0;">
                     <div class="signature-line">Signature of Co-Maker (if necessary)</div>
                 </div>
-                
                 <div class="print-field" style="margin-bottom: 20px;">
                     <span class="print-label">Date Accomplish:</span>
                     <span class="print-value" style="min-width: 200px;"></span>
                 </div>
-                
                 <div style="margin-bottom: 20px;">
                     <div style="font-weight: bold; margin-bottom: 10px;">BASIS OF RECOMMENDATION:</div>
                     <div style="display: flex; justify-content: space-between;">
@@ -701,19 +583,12 @@
                         </div>
                         <div style="width: 48%;">
                             <div style="font-weight: bold; margin-bottom: 5px;">CBU:</div>
-                            <div style="display: flex; gap: 20px;">
-                                <div class="print-field">
-                                    <span class="checkbox-print" id="checkCbuUpdated">( )</span>
-                                    <span>Updated</span>
-                                </div>
-                                <div class="print-field">
-                                    <span class="checkbox-print" id="checkCbuNotUpdated">( )</span>
-                                    <span>Not Updated</span>
-                                </div>
+                            <div class="print-field">
+                                <span class="print-label">CBU Status:</span>
+                                <span class="print-value" id="printCbuStatus" style="min-width: 100px;"></span>
                             </div>
                         </div>
                     </div>
-                    
                     <div style="margin-top: 10px;">
                         <div class="print-field">
                             <span class="print-label">Previous Loan:</span>
@@ -725,54 +600,18 @@
                         </div>
                     </div>
                 </div>
-                
                 <div style="margin-bottom: 20px;">
                     <div style="font-weight: bold; margin-bottom: 10px;">Borrower's Category:</div>
-                    <div style="display: flex; justify-content: space-between;">
-                        <div style="width: 48%;">
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkNewMember">( )</span>
-                                <span>New Member</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkNewBorrower">( )</span>
-                                <span>New Borrower</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkOldMember">( )</span>
-                                <span>Old Member</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkOldBorrower">( )</span>
-                                <span>Old Borrower</span>
-                            </div>
-                        </div>
-                        <div style="width: 48%;">
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkWithOBBalance">( )</span>
-                                <span>With O/B Balance</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkCurrent">( )</span>
-                                <span>Current</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkRestructured">( )</span>
-                                <span>Restructured</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkPastDue">( )</span>
-                                <span>Past Due</span>
-                            </div>
-                            <div class="print-field">
-                                <span class="checkbox-print" id="checkOthersStatus">( )</span>
-                                <span>Others:</span>
-                                <span class="print-value" style="min-width: 100px;"></span>
-                            </div>
-                        </div>
+                    <div class="print-field">
+                        <span class="print-label">Category:</span>
+                        <span class="print-value" id="printBorrowerCategory" style="min-width: 200px;"></span>
+                    </div>
+                    <div style="font-weight: bold; margin-bottom: 10px; margin-top: 10px;">Loan Balance Status:</div>
+                    <div class="print-field">
+                        <span class="print-label">Status:</span>
+                        <span class="print-value" id="printLoanBalanceStatus" style="min-width: 200px;"></span>
                     </div>
                 </div>
-                
                 <div style="margin-bottom: 20px;">
                     <div class="print-field">
                         <span class="print-label">AMOUNT OF LOAN RECOMMENDED ₱</span>
@@ -787,7 +626,6 @@
                         <span class="print-value" style="min-width: 200px;"></span>
                     </div>
                 </div>
-                
                 <div style="border-top: 1px solid #2c3e50; padding-top: 15px; margin-bottom: 20px;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
                         <div style="width: 48%;">
@@ -800,7 +638,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div style="display: flex; justify-content: space-between;">
                         <div style="width: 48%;">
                             <div class="print-field">
@@ -820,7 +657,6 @@
                         </div>
                     </div>
                 </div>
-                
                 <div style="margin-bottom: 20px;">
                     <div style="font-weight: bold; margin-bottom: 10px;">COOPERATIVE LOANS APPROVING COMMITTEE:</div>
                     <div style="display: flex; justify-content: space-between;">
@@ -830,125 +666,103 @@
                     </div>
                 </div>
             </div>
-            
             <button id="printButton" class="print-button no-print" onclick="printForm()">Print Form</button>
         </div>
     </div>
-
     <script>
-        // Function to format the date as YYYY-MM-DD
-        function getCurrentDate() {
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = String(today.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-            const day = String(today.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-
-        // Set the current date to the Date of Application field
         document.addEventListener('DOMContentLoaded', function() {
-            const dateOfApplicationField = document.getElementById('date_of_application');
-            dateOfApplicationField.value = getCurrentDate();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-US', options);
+            const today = new Date().toISOString().substr(0, 10);
+            document.getElementById('date_of_application').value = today;
         });
-        
+
         document.getElementById("loanForm").addEventListener("submit", function(event) {
             event.preventDefault();
-            
-            const formData = new FormData(this);
+            const form = this;
             const notification = document.getElementById("notification");
-            
+
+            const formData = {
+                cb_number: document.getElementById('cb_number').value.trim(),
+                application_no: document.getElementById('application_no').value.trim(),
+                date_of_application: document.getElementById('date_of_application').value,
+                application_date: document.getElementById('date_of_application').value,
+                first_name: document.getElementById('first_name').value.trim(),
+                last_name: document.getElementById('last_name').value.trim(),
+                address: document.getElementById('address').value.trim(),
+                member_address: document.getElementById('address').value.trim(),
+                contact_no: document.getElementById('contact_no').value.trim(),
+                contact_number: document.getElementById('contact_no').value.trim(),
+                loan_type: document.querySelector('input[name="loan_type"]').value,
+                loan_purpose: document.getElementById('loan_purpose').value,
+                loan_amount: parseFloat(document.getElementById('loan_amount').value) || 0,
+                cbu_status: document.getElementById('cbu_status').value,
+                borrower_category: document.getElementById('borrower_category').value,
+                borrower_type: document.getElementById('borrower_category').value,
+                loan_balance_status: document.getElementById('loan_balance_status').value,
+                loan_status: document.getElementById('loan_balance_status').value,
+                spouse_name: document.getElementById('spouse_name').value.trim() || '',
+                account_no: document.getElementById('account_no').value.trim() || '',
+                coop_id: document.getElementById('coop_id').value.trim() || '',
+                annual_income: parseFloat(document.getElementById('annual_income').value) || 0,
+                source_of_income: document.getElementById('source_of_income').value.trim() || '',
+                security_offered: document.getElementById('security_offered').value.trim() || '',
+                paid_up_capital: parseFloat(document.getElementById('paid_up_capital').value) || 0,
+                previous_loan: parseFloat(document.getElementById('previous_loan').value) || 0,
+                outstanding_balance: parseFloat(document.getElementById('outstanding_balance').value) || 0
+            };
+
+            console.log('Form Data (Regular Loan):', formData);
+
             fetch("/member/loan-regular", {
                 method: "POST",
-                body: formData
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(formData)
             })
             .then(response => response.json())
             .then(data => {
-                notification.textContent = data.message;
+                notification.textContent = data.message || (data.success ? "Application submitted successfully!" : "Failed to submit application.");
                 notification.className = data.success ? "notification success" : "notification error";
                 notification.style.display = "block";
-                
-                setTimeout(() => { notification.style.display = "none"; }, 3000);
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 3000);
+
+                if (data.success) {
+                    document.getElementById('printDate').textContent = formData.date_of_application;
+                    document.getElementById('printAppNo').textContent = formData.application_no;
+                    document.getElementById('printMemberName').textContent = `${formData.first_name} ${formData.last_name}`;
+                    document.getElementById('printAddress').textContent = formData.address;
+                    document.getElementById('printContactNo').textContent = formData.contact_no;
+                    document.getElementById('printLoanAmount').textContent = formData.loan_amount;
+                    document.getElementById('printAnnualIncome').textContent = formData.annual_income;
+                    document.getElementById('printSourceIncome').textContent = formData.source_of_income;
+                    document.getElementById('printSpouseName').textContent = formData.spouse_name;
+                    document.getElementById('printAccountNo').textContent = formData.account_no;
+                    document.getElementById('printCoopId').textContent = formData.coop_id;
+                    document.getElementById('printSecurityOffered').textContent = formData.security_offered;
+                    document.getElementById('printPaidUpCapital').textContent = formData.paid_up_capital;
+                    document.getElementById('printPreviousLoan').textContent = formData.previous_loan;
+                    document.getElementById('printOutstandingBalance').textContent = formData.outstanding_balance;
+                    document.getElementById('printCbuStatus').textContent = formData.cbu_status;
+                    document.getElementById('printBorrowerCategory').textContent = formData.borrower_category;
+                    document.getElementById('printLoanPurpose').textContent = formData.loan_purpose;
+                    document.getElementById('printLoanBalanceStatus').textContent = formData.loan_balance_status;
+                    document.getElementById('printButton').style.display = 'block';
+                    document.getElementById('printableArea').style.display = 'block';
+                }
             })
             .catch(error => {
                 console.error("Error:", error);
                 notification.textContent = "An error occurred. Please try again.";
                 notification.className = "notification error";
                 notification.style.display = "block";
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 3000);
             });
-
-            // Populate the printable area
-            document.getElementById('printDate').textContent = document.getElementById('date_of_application').value;
-            document.getElementById('printAppNo').textContent = document.getElementById('application_no').value;
-            document.getElementById('printMemberName').textContent = document.getElementById('member_name').value;
-            document.getElementById('printAddress').textContent = document.getElementById('address').value;
-            document.getElementById('printContactNo').textContent = document.getElementById('contact_no').value;
-            document.getElementById('printLoanAmount').textContent = document.getElementById('loan_amount').value;
-            document.getElementById('printAnnualIncome').textContent = document.getElementById('annual_income').value;
-            document.getElementById('printSourceIncome').textContent = document.getElementById('source_of_income').value;
-            document.getElementById('printSpouseName').textContent = document.getElementById('spouse_name').value;
-            document.getElementById('printAccountNo').textContent = document.getElementById('account_no').value;
-            document.getElementById('printCoopId').textContent = document.getElementById('coop_id').value;
-            document.getElementById('printSecurityOffered').textContent = document.getElementById('security_offered').value;
-            document.getElementById('printPaidUpCapital').textContent = document.getElementById('paid_up_capital').value;
-            document.getElementById('printPreviousLoan').textContent = document.getElementById('previous_loan').value;
-            document.getElementById('printOutstandingBalance').textContent = document.getElementById('outstanding_balance').value;
-            
-            // Handle checkboxes for purpose
-            if(document.getElementById('purpose_emergency').checked) {
-                document.getElementById('checkEmergency').innerHTML = '(✓)';
-            }
-            if(document.getElementById('purpose_providential').checked) {
-                document.getElementById('checkProvidential').innerHTML = '(✓)';
-            }
-            if(document.getElementById('purpose_agricultural').checked) {
-                document.getElementById('checkAgricultural').innerHTML = '(✓)';
-            }
-            if(document.getElementById('purpose_farm_equipment').checked) {
-                document.getElementById('checkFarmEquipment').innerHTML = '(✓)';
-            }
-            if(document.getElementById('purpose_crop_production').checked) {
-                document.getElementById('checkCropProduction').innerHTML = '(✓)';
-            }
-            if(document.getElementById('purpose_others').checked) {
-                document.getElementById('checkOthers').innerHTML = '(✓)';
-            }
-            
-            // Handle CBU status
-            if(document.getElementById('cbu_status').value === 'Updated') {
-                document.getElementById('checkCbuUpdated').innerHTML = '(✓)';
-            } else {
-                document.getElementById('checkCbuNotUpdated').innerHTML = '(✓)';
-            }
-            
-            // Handle borrower category
-            const borrowerCategory = document.getElementById('borrower_category').value;
-            if(borrowerCategory === 'New Member') {
-                document.getElementById('checkNewMember').innerHTML = '(✓)';
-            } else if(borrowerCategory === 'New Borrower') {
-                document.getElementById('checkNewBorrower').innerHTML = '(✓)';
-            } else if(borrowerCategory === 'Old Member') {
-                document.getElementById('checkOldMember').innerHTML = '(✓)';
-            } else if(borrowerCategory === 'Old Borrower') {
-                document.getElementById('checkOldBorrower').innerHTML = '(✓)';
-            }
-            
-            // Handle loan balance status
-            const loanBalanceStatus = document.getElementById('loan_balance_status').value;
-            if(loanBalanceStatus === 'With O/B Balance') {
-                document.getElementById('checkWithOBBalance').innerHTML = '(✓)';
-            } else if(loanBalanceStatus === 'Current') {
-                document.getElementById('checkCurrent').innerHTML = '(✓)';
-            } else if(loanBalanceStatus === 'Restructured') {
-                document.getElementById('checkRestructured').innerHTML = '(✓)';
-            } else if(loanBalanceStatus === 'Past Due') {
-                document.getElementById('checkPastDue').innerHTML = '(✓)';
-            } else if(loanBalanceStatus === 'Others') {
-                document.getElementById('checkOthersStatus').innerHTML = '(✓)';
-            }
-
-            // Show the print button and printable area
-            document.getElementById('printButton').style.display = 'block';
-            document.getElementById('printableArea').style.display = 'block';
         });
 
         function printForm() {
@@ -956,3 +770,4 @@
         }
     </script>
 </body>
+</html>

@@ -198,28 +198,29 @@
             overflow-x: auto;
         }
         
-        @media (max-width: 768px) {
-            .main-content {
-                margin-left: 0;
-                padding: 20px;
-            }
-            
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
-            }
-            
-            .search-container {
-                max-width: 100%;
-            }
-            
-            .loans-table th, 
-            .loans-table td {
-                padding: 12px 15px;
-            }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
         }
-    /* NEW: Risk level badge styles */
+        
+        .status-approved {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+        
         .risk-badge {
             padding: 4px 8px;
             border-radius: 12px;
@@ -257,6 +258,28 @@
 
         .assess-risk-btn:hover {
             background-color: #1e40af;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .search-container {
+                max-width: 100%;
+            }
+            
+            .loans-table th, 
+            .loans-table td {
+                padding: 12px 15px;
+            }
         }
     </style>
 </head>
@@ -299,7 +322,7 @@
                             <th>CBU Status</th>
                             <th>Borrower Type</th>
                             <th>Loan Status</th>
-                            <th>Risk Level</th> <!-- NEW: Added Risk Level column -->
+                            <th>Risk Level</th>
                             <th>Application Status</th>
                             <th>Date Created</th>
                             <th>Last Updated</th>
@@ -318,14 +341,14 @@
                                 <td><%= loan.account_number %></td>
                                 <td><%= loan.coop_id_number %></td>
                                 <td><%= loan.loan_type %></td>
-                                <td><%= loan.loan_amount.toLocaleString() %></td>
-                                <td><%= loan.annual_income.toLocaleString() %></td>
+                                <td>₱<%= loan.loan_amount.toLocaleString() %></td>
+                                <td>₱<%= loan.annual_income.toLocaleString() %></td>
                                 <td><%= loan.income_source %></td>
                                 <td><%= loan.collateral %></td>
                                 <td><%= loan.loan_purpose %></td>
-                                <td><%= loan.paid_up_capital.toLocaleString() %></td>
-                                <td><%= loan.previous_loan_amount.toLocaleString() %></td>
-                                <td><%= loan.outstanding_balance.toLocaleString() %></td>
+                                <td>₱<%= loan.paid_up_capital.toLocaleString() %></td>
+                                <td>₱<%= loan.previous_loan_amount.toLocaleString() %></td>
+                                <td>₱<%= loan.outstanding_balance.toLocaleString() %></td>
                                 <td><%= loan.cbu_status %></td>
                                 <td><%= loan.borrower_type %></td>
                                 <td><%= loan.loan_status %></td>
@@ -341,7 +364,17 @@
                                         </button>
                                     <% } %>
                                 </td>
-                                <td><%= loan.application_status %></td>
+                                <td>
+                                    <% let statusClass = ''; %>
+                                    <% if (loan.application_status.toLowerCase() === 'approved') { %>
+                                        <% statusClass = 'status-approved'; %>
+                                    <% } else if (loan.application_status.toLowerCase() === 'pending') { %>
+                                        <% statusClass = 'status-pending'; %>
+                                    <% } else if (loan.application_status.toLowerCase() === 'rejected') { %>
+                                        <% statusClass = 'status-rejected'; %>
+                                    <% } %>
+                                    <span class="status-badge <%= statusClass %>"><%= loan.application_status %></span>
+                                </td>
                                 <td><%= new Date(loan.date_created).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
                                 <td><%= new Date(loan.last_updated).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
                                 <td>
@@ -385,9 +418,7 @@
             window.location.href = `/admin/loan-regular?cbNumber=` + encodeURIComponent(cbNumber);
         }
 
-        // NEW: Risk assessment function
         function assessRisk(applicationNo, loanType, buttonElement) {
-            // Show loading state
             buttonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Assessing...';
             buttonElement.disabled = true;
             
@@ -406,7 +437,6 @@
                     return;
                 }
                 
-                // Replace button with risk level badge
                 const td = buttonElement.closest('td');
                 td.innerHTML = `<span class="risk-badge risk-${data.riskLevel.toLowerCase()}">
                                    ${data.riskLevel}
@@ -420,7 +450,6 @@
             });
         }
 
-        // Search functionality
         document.getElementById('searchInput').addEventListener('input', function(e) {
             const searchTerm = e.target.value.toLowerCase();
             const rows = document.querySelectorAll('#loansTableBody tr');
@@ -433,11 +462,9 @@
                 if (isVisible) visibleCount++;
             });
             
-            // Update the pagination text
             document.getElementById('totalEntries').textContent = visibleCount;
         });
         
-        // Initialize total entries count
         document.getElementById('totalEntries').textContent = document.querySelectorAll('#loansTableBody tr').length;
     </script>
 </body>
