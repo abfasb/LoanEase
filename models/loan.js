@@ -99,7 +99,7 @@ class Loan {
     // Update loan application status
     static updateLoanApplicationStatus(cbNumber, status, callback) {
         const query = `
-            UPDATE salary_bonuses_loans 
+            UPDATE regular_agricultural_loans 
             SET application_status = ?, 
                 last_updated = NOW() 
             WHERE cb_number = ?
