@@ -190,6 +190,153 @@ class Payment {
             callback(null, results.length > 0 ? results[0] : null);
         });
     }
+    // Add this method to your Payment class
+static getByLoanIdWithRejections(loanId, loanType, callback) {
+    const loanTypeMap = {
+        'agricultural': 'Regular/Agricultural',
+        'regular/agricultural': 'Regular/Agricultural',
+        'salary': 'Salary',
+        'bonuses': 'Bonuses'
+    };
+    const mappedLoanType = loanTypeMap[loanType.toLowerCase()] || loanType;
+    
+    const query = `
+        SELECT 
+            lp.*,
+            pr.reason as rejection_reason,
+            pr.created_at as rejection_date
+        FROM loan_payments lp
+        LEFT JOIN payment_rejections pr ON lp.payment_id = pr.payment_id
+        WHERE lp.loan_id = ? AND lp.loan_type = ? 
+        ORDER BY lp.payment_sequence ASC, lp.created_at ASC
+    `;
+    db.query(query, [loanId, mappedLoanType], callback);
 }
+
+
+
+}
+
+// Add this method to your adminController.js
+
+// Get Payment Status for Admin
+exports.getAdminPaymentStatus = async (req, res) => {
+    try {
+        const { loanId, loanType } = req.params;
+
+        console.log('📊 Fetching payment status for Admin - Loan ID:', loanId, 'Type:', loanType);
+
+        // Validate parameters
+        if (!loanId || !loanType) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing loan ID or loan type'
+            });
+        }
+
+        // Query to get all payment records for this loan
+        const query = `
+            SELECT 
+                payment_sequence,
+                reference_number,
+                amount,
+                status,
+                payment_method,
+                created_at,
+                updated_at
+            FROM loan_payments
+            WHERE loan_id = ? AND loan_type = ?
+            ORDER BY payment_sequence ASC
+        `;
+
+        db.query(query, [loanId, loanType], (error, results) => {
+            if (error) {
+                console.error('❌ Error fetching payment status:', error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Database error while fetching payment status',
+                    error: error.message
+                });
+            }
+
+            console.log('✅ Payment records found:', results.length);
+
+            res.json({
+                success: true,
+                payments: results,
+                totalPayments: results.length,
+                paidCount: results.filter(p => p.status === 'Completed').length,
+                pendingCount: results.filter(p => p.status === 'Pending').length,
+                failedCount: results.filter(p => p.status === 'Failed').length
+            });
+        });
+    } catch (error) {
+        console.error('❌ Error in getAdminPaymentStatus:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
+
+// Update Payment Status (for Admin)
+exports.updatePaymentStatus = async (req, res) => {
+    try {
+        const { paymentId } = req.params;
+        const { status, adminNotes } = req.body;
+
+        console.log('🔄 Admin updating payment status:', paymentId, 'to', status);
+
+        // Validate status
+        const validStatuses = ['Pending', 'Completed', 'Failed'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid status. Must be Pending, Completed, or Failed'
+            });
+        }
+
+        const updateQuery = `
+            UPDATE loan_payments 
+            SET status = ?,
+                admin_notes = ?,
+                updated_at = NOW()
+            WHERE id = ?
+        `;
+
+        db.query(updateQuery, [status, adminNotes || null, paymentId], (error, result) => {
+            if (error) {
+                console.error('❌ Error updating payment status:', error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Failed to update payment status',
+                    error: error.message
+                });
+            }
+
+            if (result.affectedRows === 0) {
+                return res.status(404).json({
+                    success: false,
+                    message: 'Payment record not found'
+                });
+            }
+
+            console.log('✅ Payment status updated successfully');
+
+            res.json({
+                success: true,
+                message: 'Payment status updated successfully'
+            });
+        });
+    } catch (error) {
+        console.error('❌ Error in updatePaymentStatus:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};
 
 module.exports = Payment;

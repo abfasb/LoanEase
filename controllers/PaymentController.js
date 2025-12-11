@@ -364,3 +364,57 @@ exports.getNextPaymentDue = (req, res) => {
         });
     });
 };
+
+// In your member/payment controller, update the getPaymentStatus route:
+exports.getPaymentStatus = async (req, res) => {
+    try {
+        const { loanId, loanType } = req.params;
+
+        console.log('📊 Fetching payment status - Loan ID:', loanId, 'Type:', loanType);
+
+        if (!loanId || !loanType) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing loan ID or loan type'
+            });
+        }
+
+        // Use the new method with rejection reasons
+        Payment.getByLoanIdWithRejections(loanId, loanType, (error, results) => {
+            if (error) {
+                console.error('❌ Error fetching payment status:', error);
+                return res.status(500).json({
+                    success: false,
+                    message: 'Database error while fetching payment status',
+                    error: error.message
+                });
+            }
+
+            console.log('✅ Payment records found:', results.length);
+
+            // Check for failed payments
+            const failedPayments = results.filter(p => p.status === 'Failed');
+            const hasFailedPayment = failedPayments.length > 0;
+            const firstFailedPayment = hasFailedPayment ? failedPayments[0] : null;
+
+            res.json({
+                success: true,
+                payments: results,
+                totalPayments: results.length,
+                paidCount: results.filter(p => p.status === 'Completed').length,
+                pendingCount: results.filter(p => p.status === 'Pending').length,
+                failedCount: failedPayments.length,
+                overdueCount: results.filter(p => p.status === 'Overdue').length,
+                hasFailedPayment: hasFailedPayment,
+                firstFailedPayment: firstFailedPayment
+            });
+        });
+    } catch (error) {
+        console.error('❌ Error in getPaymentStatus:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Internal server error',
+            error: error.message
+        });
+    }
+};

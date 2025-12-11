@@ -735,253 +735,222 @@
                 });
             }
 
-        function generatePaymentScheduleWithStatus(loanId, loanType, loanAmount, transactionDate, existingPayments) {
-            const container = document.getElementById('paymentScheduleContainer');
-            
-            // Clear loading state
-            container.innerHTML = '';
+function generatePaymentScheduleWithStatus(loanId, loanType, loanAmount, transactionDate, existingPayments) {
+    const container = document.getElementById('paymentScheduleContainer');
+    container.innerHTML = '';
 
-            // Determine loan term based on amount
-            const loanTermMonths = loanAmount >= 100000 ? 24 : 12;
+    const loanTermMonths = loanAmount >= 100000 ? 24 : 12;
+    const isRegular = loanType !== 'salary' && loanType !== 'bonuses';
+    const interestRate = isRegular ? 0.03 : 0.01;
+    const paymentFrequency = isRegular ? 'monthly' : 'semi-monthly';
+    const paymentsPerMonth = isRegular ? 1 : 2;
+    const totalPayments = loanTermMonths * paymentsPerMonth;
+    const principalPerPayment = Math.round(loanAmount / totalPayments);
+    const paymentIntervalDays = isRegular ? 30 : 15;
+    const interestLabel = isRegular ? 'Interest (3%)' : 'Interest (1%)';
 
-            // Determine if regular/agricultural or salary/bonuses
-            const isRegular = loanType !== 'salary' && loanType !== 'bonuses';
+    let remainingBalance = loanAmount;
+    let totalInterest = 0;
+    let totalPayment = 0;
 
-            const interestRate = isRegular ? 0.03 : 0.01;
-            const paymentFrequency = isRegular ? 'monthly' : 'semi-monthly';
-            const paymentsPerMonth = isRegular ? 1 : 2;
-            const totalPayments = loanTermMonths * paymentsPerMonth;
-            const principalPerPayment = Math.round(loanAmount / totalPayments);
-            const paymentIntervalDays = isRegular ? 30 : 15;
-            const interestLabel = isRegular ? 'Interest (3%)' : 'Interest (1%)';
+    const currentDate = new Date();
+    const startDate = transactionDate ? new Date(transactionDate) : new Date();
+    startDate.setDate(startDate.getDate() + paymentIntervalDays);
 
-            let remainingBalance = loanAmount;
-            let totalInterest = 0;
-            let totalPayment = 0;
-            let amountDue = 0;
-            let nextPaymentIndex = 0;
-
-            // Current date for status determination
-            const currentDate = new Date();
-
-            // Use transaction date or current date as the starting point
-            const startDate = transactionDate ? new Date(transactionDate) : new Date();
-            startDate.setDate(startDate.getDate() + paymentIntervalDays); // First payment due
-
-            // Create a map of payment statuses by sequence
-            const paymentStatusMap = {};
-            existingPayments.forEach(payment => {
-                const sequence = payment.payment_sequence || 1;
-                if (!paymentStatusMap[sequence] || new Date(payment.created_at) > new Date(paymentStatusMap[sequence].created_at)) {
-                    paymentStatusMap[sequence] = payment;
-                }
-            });
-
-            // Add payment status legend
-            const legend = document.createElement('div');
-            legend.className = 'payment-status-legend';
-            legend.innerHTML = `
-                <div class="legend-item">
-                    <div class="legend-color paid"></div>
-                    <span>Paid</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color pending"></div>
-                    <span>Pending</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color unpaid"></div>
-                    <span>Unpaid</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color overdue"></div>
-                    <span>Overdue</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color failed"></div>
-                    <span>Failed</span>
-                </div>
-            `;
-            container.appendChild(legend);
-
-            // Find next unpaid payment
-            let foundNextPayment = false;
-            let paidPayments = 0;
-            let pendingPayments = 0;
-            let unpaidPayments = 0;
-            let overduePayments = 0;
-            let failedPayments = 0;
-
-            // Create table for payment schedule
-            const table = document.createElement('table');
-            table.className = 'payment-table';
-
-            // Create table header
-            const thead = document.createElement('thead');
-            const headerRow = document.createElement('tr');
-            ['#', 'Due Date', 'Principal', interestLabel, 'Total Payment', 'Remaining Balance', 'Status', 'Reference'].forEach(text => {
-                const th = document.createElement('th');
-                th.textContent = text;
-                headerRow.appendChild(th);
-            });
-            thead.appendChild(headerRow);
-            table.appendChild(thead);
-
-            // Create table body
-            const tbody = document.createElement('tbody');
-
-            for (let payment = 0; payment < totalPayments; payment++) {
-                const sequence = payment + 1;
-                const interest = Math.round(remainingBalance * interestRate);
-                const totalPerPayment = principalPerPayment + interest;
-
-                // Update totals
-                totalInterest += interest;
-                totalPayment += totalPerPayment;
-
-                // Calculate due date
-                const dueDate = new Date(startDate);
-                dueDate.setDate(startDate.getDate() + payment * paymentIntervalDays);
-
-                // Determine status based on payments made
-                let paymentStatus = 'Unpaid';
-                let statusClass = 'status-unpaid';
-                let referenceNumber = '';
-
-                if (paymentStatusMap[sequence]) {
-                    const paymentRecord = paymentStatusMap[sequence];
-                    referenceNumber = paymentRecord.reference_number || '';
-                    
-                    if (paymentRecord.status === 'Completed') {
-                        paymentStatus = 'Paid';
-                        statusClass = 'status-paid';
-                        paidPayments++;
-                    } else if (paymentRecord.status === 'Pending') {
-                        paymentStatus = 'Pending';
-                        statusClass = 'status-pending';
-                        pendingPayments++;
-                    } else if (paymentRecord.status === 'Failed') {
-                        paymentStatus = 'Failed';
-                        statusClass = 'status-failed';
-                        failedPayments++;
-                    }
-                } else if (dueDate < currentDate) {
-                    // Overdue payments that haven't been submitted
-                    paymentStatus = 'Overdue';
-                    statusClass = 'status-overdue';
-                    overduePayments++;
-                } else {
-                    unpaidPayments++;
-                }
-
-                // Set next payment due amount (first unpaid or overdue payment)
-                if (!foundNextPayment && (paymentStatus === 'Unpaid' || paymentStatus === 'Overdue')) {
-                    amountDue = totalPerPayment;
-                    nextPaymentIndex = payment;
-                    foundNextPayment = true;
-                }
-
-                // Create row
-                const row = document.createElement('tr');
-
-                // Sequence number cell
-                const sequenceCell = document.createElement('td');
-                sequenceCell.textContent = sequence;
-                sequenceCell.style.fontWeight = '600';
-                row.appendChild(sequenceCell);
-
-                // Due Date cell
-                const dateCell = document.createElement('td');
-                dateCell.textContent = dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-                row.appendChild(dateCell);
-
-                // Principal cell
-                const principalCell = document.createElement('td');
-                principalCell.textContent = '₱' + principalPerPayment.toLocaleString();
-                row.appendChild(principalCell);
-
-                // Interest cell
-                const interestCell = document.createElement('td');
-                interestCell.textContent = '₱' + interest.toLocaleString();
-                row.appendChild(interestCell);
-
-                // Total payment cell
-                const paymentCell = document.createElement('td');
-                paymentCell.textContent = '₱' + totalPerPayment.toLocaleString();
-                paymentCell.style.fontWeight = '500';
-                row.appendChild(paymentCell);
-
-                // Remaining balance cell
-                remainingBalance = Math.max(0, remainingBalance - principalPerPayment);
-                const balanceCell = document.createElement('td');
-                balanceCell.textContent = '₱' + remainingBalance.toLocaleString();
-                row.appendChild(balanceCell);
-
-                // Status cell
-                const statusCell = document.createElement('td');
-                statusCell.textContent = paymentStatus;
-                statusCell.className = statusClass;
-                row.appendChild(statusCell);
-
-                // Reference number cell
-                const refCell = document.createElement('td');
-                refCell.textContent = referenceNumber;
-                refCell.style.fontSize = '0.75rem';
-                refCell.style.color = 'var(--text-secondary)';
-                row.appendChild(refCell);
-
-                tbody.appendChild(row);
-            }
-
-            table.appendChild(tbody);
-            container.appendChild(table);
-
-            // Add comprehensive summary
-            const summary = document.createElement('div');
-            summary.className = 'payment-summary';
-            summary.innerHTML = `
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
-                    <div>
-                        <p>Loan Term: <span>${loanTermMonths} months</span></p>
-                        <p>Payment Frequency: <span>${paymentFrequency}</span></p>
-                        <p>Total Payments: <span>${totalPayments}</span></p>
-                    </div>
-                    <div>
-                        <p>Paid Payments: <span style="color: var(--success)">${paidPayments}</span></p>
-                        <p>Pending Payments: <span style="color: var(--pending)">${pendingPayments}</span></p>
-                        <p>Overdue Payments: <span style="color: var(--overdue)">${overduePayments}</span></p>
-                        <p>Failed Payments: <span style="color: var(--failed)">${failedPayments}</span></p>
-                        <p>Remaining Payments: <span style="color: var(--danger)">${unpaidPayments}</span></p>
-                    </div>
-                    <div>
-                        <p>Principal per Payment: <span>₱${principalPerPayment.toLocaleString()}</span></p>
-                        <p>Total Interest: <span>₱${totalInterest.toLocaleString()}</span></p>
-                        <p>Total Amount: <span>₱${totalPayment.toLocaleString()}</span></p>
-                    </div>
-                </div>
-                <div style="background: var(--primary-light); padding: 10px; border-radius: var(--radius-sm); text-align: center;">
-                    <p style="margin: 0; font-size: 1.1rem;"><strong>Next Payment Due: ₱${amountDue.toLocaleString()}</strong></p>
-                </div>
-            `;
-            container.appendChild(summary);
-
-            // Show success message if there are pending payments
-            if (pendingPayments > 0) {
-                const successMessage = document.createElement('div');
-                successMessage.className = 'payment-success-message';
-                successMessage.innerHTML = `
-                    <i class="fas fa-info-circle"></i>
-                    You have ${pendingPayments} payment${pendingPayments > 1 ? 's' : ''} currently being processed.
-                `;
-                container.insertBefore(successMessage, container.firstChild);
-            }
-
-            // Store data for payment page
-            sessionStorage.setItem('currentLoanId', loanId);
-            sessionStorage.setItem('currentLoanType', loanType);
-            sessionStorage.setItem('currentAmountDue', amountDue);
-            sessionStorage.setItem('nextPaymentIndex', nextPaymentIndex);
+    // Map existing payments by sequence
+    const paymentStatusMap = {};
+    existingPayments.forEach(payment => {
+        const seq = payment.payment_sequence || 1;
+        if (!paymentStatusMap[seq] || new Date(payment.created_at) > new Date(paymentStatusMap[seq].created_at)) {
+            paymentStatusMap[seq] = payment;
         }
+    });
+
+    // Legend
+    const legend = document.createElement('div');
+    legend.className = 'payment-status-legend';
+    legend.innerHTML = `
+        <div class="legend-item"><div class="legend-color paid"></div><span>Paid</span></div>
+        <div class="legend-item"><div class="legend-color pending"></div><span>Pending</span></div>
+        <div class="legend-item"><div class="legend-color unpaid"></div><span>Unpaid</span></div>
+        <div class="legend-item"><div class="legend-color overdue"></div><span>Overdue</span></div>
+        <div class="legend-item"><div class="legend-color failed"></div><span>Failed</span></div>
+    `;
+    container.appendChild(legend);
+
+    // Counters
+    let paidPayments = 0, pendingPayments = 0, unpaidPayments = 0, overduePayments = 0, failedPayments = 0;
+
+    // Table
+    const table = document.createElement('table');
+    table.className = 'payment-table';
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    ['#', 'Due Date', 'Principal', interestLabel, 'Total Payment', 'Remaining Balance', 'Status', 'Reference/Details'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+
+    // Variables for accumulated due
+    let accumulatedDue = 0;
+    let accumulatedCount = 0;
+    let accumulatedBreakdown = [];
+    let nextPaymentIndex = 0;
+    let foundFirstUnpaid = false;
+
+    for (let i = 0; i < totalPayments; i++) {
+        const sequence = i + 1;
+        const interest = Math.round(remainingBalance * interestRate);
+        const totalPerPayment = principalPerPayment + interest;
+
+        totalInterest += interest;
+        totalPayment += totalPerPayment;
+
+        const dueDate = new Date(startDate);
+        dueDate.setDate(startDate.getDate() + i * paymentIntervalDays);
+
+        let paymentStatus = 'Unpaid';
+        let statusClass = 'status-unpaid';
+        let referenceNumber = '';
+        let rejectionReason = '';
+
+        if (paymentStatusMap[sequence]) {
+            const rec = paymentStatusMap[sequence];
+            referenceNumber = rec.reference_number || '';
+            rejectionReason = rec.rejection_reason || '';
+
+            if (rec.status === 'Completed') {
+                paymentStatus = 'Paid';
+                statusClass = 'status-paid';
+                paidPayments++;
+            } else if (rec.status === 'Pending') {
+                paymentStatus = 'Pending';
+                statusClass = 'status-pending';
+                pendingPayments++;
+            } else if (rec.status === 'Failed') {
+                paymentStatus = 'Failed';
+                statusClass = 'status-failed';
+                failedPayments++;
+            }
+        } else if (dueDate < currentDate) {
+            paymentStatus = 'Overdue';
+            statusClass = 'status-overdue';
+            overduePayments++;
+        } else {
+            unpaidPayments++;
+        }
+
+        // Accumulate due amount for consecutive Failed/Overdue/Unpaid (stop at first Paid/Pending after)
+        if (!foundFirstUnpaid && (paymentStatus === 'Overdue' || paymentStatus === 'Failed' || (paymentStatus === 'Unpaid' && dueDate <= currentDate))) {
+            accumulatedDue += totalPerPayment;
+            accumulatedCount++;
+            accumulatedBreakdown.push(`#${sequence} (${paymentStatus})`);
+            nextPaymentIndex = i;
+            foundFirstUnpaid = true;
+        } else if (foundFirstUnpaid && (paymentStatus === 'Paid' || paymentStatus === 'Pending')) {
+            // Stop accumulating if a later payment is already processed
+            foundFirstUnpaid = false;
+        }
+
+        // If this is the very first unpaid/overdue/failed and we haven't started accumulating yet
+        if (!foundFirstUnpaid && (paymentStatus === 'Unpaid' && dueDate > currentDate)) {
+            // This is the next regular due (no arrears)
+            accumulatedDue = totalPerPayment;
+            accumulatedCount = 1;
+            accumulatedBreakdown = [`#${sequence} (Upcoming)`];
+            nextPaymentIndex = i;
+            foundFirstUnpaid = true; // to prevent further accumulation
+        }
+
+        remainingBalance = Math.max(0, remainingBalance - principalPerPayment);
+
+        // Row creation (same as before)
+        const row = document.createElement('tr');
+        [sequence, dueDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }),
+         '₱' + principalPerPayment.toLocaleString(),
+         '₱' + interest.toLocaleString(),
+         '₱' + totalPerPayment.toLocaleString(),
+         '₱' + remainingBalance.toLocaleString(),
+         paymentStatus].forEach((text, idx) => {
+            const td = document.createElement('td');
+            if (idx === 0) td.style.fontWeight = '600';
+            if (idx === 4) td.style.fontWeight = '500';
+            if (idx === 6) td.className = statusClass;
+            td.textContent = text;
+            row.appendChild(td);
+        });
+
+        // Reference/Details
+        const refTd = document.createElement('td');
+        if (referenceNumber) {
+            refTd.innerHTML = `<div style="font-size: 0.75rem; color: var(--text-secondary);">${referenceNumber}</div>`;
+        }
+        if (paymentStatus === 'Failed' && rejectionReason) {
+            const reasonDiv = document.createElement('div');
+            reasonDiv.style.cssText = 'margin-top: 5px; padding: 8px; background-color: var(--failed-bg); color: var(--failed); border-radius: 4px; font-size: 0.7rem; font-weight: 500; border-left: 3px solid var(--failed);';
+            reasonDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> <strong>Reason:</strong> ${rejectionReason}`;
+            refTd.appendChild(reasonDiv);
+        }
+        row.appendChild(refTd);
+        tbody.appendChild(row);
+    }
+
+    table.appendChild(tbody);
+    container.appendChild(table);
+
+    // Summary
+    const summary = document.createElement('div');
+    summary.className = 'payment-summary';
+    summary.innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+            <div><p>Loan Term: <span>${loanTermMonths} months</span></p><p>Payment Frequency: <span>${paymentFrequency}</span></p><p>Total Payments: <span>${totalPayments}</span></p></div>
+            <div><p>Paid: <span style="color: var(--success)">${paidPayments}</span></p><p>Pending: <span style="color: var(--pending)">${pendingPayments}</span></p><p>Overdue: <span style="color: var(--overdue)">${overduePayments}</span></p><p>Failed: <span style="color: var(--failed)">${failedPayments}</span></p><p>Remaining: <span style="color: var(--danger)">${unpaidPayments}</span></p></div>
+            <div><p>Principal per Payment: <span>₱${principalPerPayment.toLocaleString()}</span></p><p>Total Interest: <span>₱${totalInterest.toLocaleString()}</span></p><p>Total Amount: <span>₱${totalPayment.toLocaleString()}</span></p></div>
+        </div>
+    `;
+
+    // Dynamic due message
+    const dueBox = document.createElement('div');
+    if (overduePayments > 0 || failedPayments > 0) {
+        dueBox.style.cssText = 'background: var(--danger-bg); padding: 12px; border-radius: var(--radius-sm); text-align: center; border-left: 5px solid var(--danger); margin-top: 15px;';
+        dueBox.innerHTML = `
+            <p style="margin: 0; font-size: 1.2rem; color: var(--danger);"><strong>You have overdue/failed payments</strong></p>
+            <div style="margin-bottom: 12px;">
+    <p style="margin: 0 0 4px 0; font-size: 0.9rem; color: var(--text-secondary);">
+        <i class="fas fa-clock" style="color: var(--warning); margin-right: 6px;"></i>
+
+    <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">
+        Please you'll need to add it to your next scheduled payment.
+    </p>
+</div>
+        `;
+    } else {
+        dueBox.style.cssText = 'background: var(--primary-light); padding: 10px; border-radius: var(--radius-sm); text-align: center; border-left: 4px solid var(--primary);';
+        dueBox.innerHTML = `
+            <p style="margin: 0; font-size: 1.1rem;"><strong>Next Payment Due: ₱${accumulatedDue.toLocaleString()}</strong></p>
+        `;
+    }
+    summary.appendChild(dueBox);
+    container.appendChild(summary);
+
+    // Pending info
+    if (pendingPayments > 0) {
+        const info = document.createElement('div');
+        info.style.cssText = 'background-color: var(--warning-bg); color: var(--warning); padding: 12px; border-radius: var(--radius-sm); margin-top: 15px; display: flex; align-items: center; gap: 10px;';
+        info.innerHTML = `<i class="fas fa-info-circle"></i><span>You have ${pendingPayments} payment${pendingPayments > 1 ? 's' : ''} currently being processed.</span>`;
+        container.insertBefore(info, container.firstChild);
+    }
+
+    // Store for payment redirect
+    sessionStorage.setItem('currentLoanId', loanId);
+    sessionStorage.setItem('currentLoanType', loanType);
+    sessionStorage.setItem('currentAmountDue', accumulatedDue);
+    sessionStorage.setItem('nextPaymentIndex', nextPaymentIndex);
+}
 
         function redirectToPaymentMethod() {
             const loanId = sessionStorage.getItem('currentLoanId');
@@ -1017,7 +986,7 @@
 
         // Auto-refresh payment status every 30 seconds if modal is open
         let refreshInterval;
-
+ 
         function startAutoRefresh() {
             stopAutoRefresh(); // Clear any existing interval
             refreshInterval = setInterval(() => {

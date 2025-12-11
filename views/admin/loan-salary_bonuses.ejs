@@ -887,89 +887,116 @@
             generatePaymentSchedule();
         }
 
-        // Validate and submit the form
-        async function submitForm() {
-            clearError();
-            calculateAll();
-            
-            const loanType = document.querySelector('input[name="loanType"]:checked').value;
-            const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
-            const previousBalance = parseFloat(document.getElementById('previousBalance').value) || 0;
-            
-            if (loanType === 'salary' && !document.getElementById('bayanihanSavings').value) {
-                showError('Please enter Bayanihan Savings amount.');
-                return;
-            }
-            
-            if (loanType === 'bonuses') {
-                const bonusType = document.querySelector('input[name="bonusType"]:checked').value;
-                const midYearAmount = parseFloat(document.getElementById('midYearAmount').value) || 0;
-                const yearEndAmount = parseFloat(document.getElementById('yearEndAmount').value) || 0;
-                
-                if ((bonusType === 'midYear' && midYearAmount <= 0) || 
-                    (bonusType === 'yearEnd' && yearEndAmount <= 0) || 
-                    (bonusType === 'both' && (midYearAmount <= 0 || yearEndAmount <= 0))) {
-                    showError('Please enter valid bonus amounts.');
-                    return;
-                }
-            }
-            
-            if (loanAmount <= 0 || previousBalance < 0) {
-                showError('Please fill out all required fields with valid values.');
-                return;
-            }
+// Updated submitForm function for loan-salary_bonuses.ejs
 
-            const formData = {
-                cbNumber: document.getElementById('cbNumber').value,
-                loanType: loanType,
-                loanAmount: loanAmount,
-                previousBalance: previousBalance,
-                newBalance: parseFloat(document.getElementById('newBalance').value) || 0,
-                serviceFee: parseFloat(document.getElementById('serviceFee').value) || 0,
-                processingFee: parseFloat(document.getElementById('processingFee').value) || 0,
-                totalDeductions: parseFloat(document.getElementById('totalDeductions').value) || 0,
-                totalLoanReceived: parseFloat(document.getElementById('totalLoan').value) || 0,
-                totalOrAmount: parseFloat(document.getElementById('totalOrAmount').value) || 0,
-                takeHomeAmount: parseFloat(document.getElementById('takeHomeAmount').value) || 0,
-                submit: true
-            };
-            
-            if (loanType === 'salary') {
-                formData.loanApplicationType = document.querySelector('input[name="loanApplicationType"]:checked').value;
-                formData.memberFee = parseFloat(document.getElementById('memberFee').value) || 0;
-                formData.shareCapital = parseFloat(document.getElementById('shareCapital').value) || 0;
-                formData.bayanihanSavings = parseFloat(document.getElementById('bayanihanSavings').value) || 0;
-            } else {
-                formData.bonusType = document.querySelector('input[name="bonusType"]:checked').value;
-                formData.midYearAmount = parseFloat(document.getElementById('midYearAmount').value) || 0;
-                formData.yearEndAmount = parseFloat(document.getElementById('yearEndAmount').value) || 0;
-                formData.midYearInterest = parseFloat(document.getElementById('midYearInterest').value) || 0;
-                formData.yearEndInterest = parseFloat(document.getElementById('yearEndInterest').value) || 0;
-                formData.totalInterest = parseFloat(document.getElementById('totalInterest').value) || 0;
-                formData.cbu = parseFloat(document.getElementById('cbu').value) || 0;
-                formData.interestFee = parseFloat(document.getElementById('interestFee').value) || 0;
-            }
-
-            try {
-                const response = await fetch('/admin/submit-salary-bonus-loan', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert(result.message || 'Loan application submitted and approved successfully!');
-                    window.location.href = '/admin/dashboard';
-                } else {
-                    showError(result.message || 'Failed to submit loan.');
-                }
-            } catch (error) {
-                console.error('Error submitting loan:', error);
-                showError('Failed to submit loan. Please try again.');
-            }
+async function submitForm() {
+    clearError();
+    calculateAll();
+    
+    const loanType = document.querySelector('input[name="loanType"]:checked').value;
+    const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+    const previousBalance = parseFloat(document.getElementById('previousBalance').value) || 0;
+    
+    // Validation
+    if (loanType === 'salary' && !document.getElementById('bayanihanSavings').value) {
+        showError('Please enter Bayanihan Savings amount.');
+        return;
+    }
+    
+    if (loanType === 'bonuses') {
+        const bonusType = document.querySelector('input[name="bonusType"]:checked').value;
+        const midYearAmount = parseFloat(document.getElementById('midYearAmount').value) || 0;
+        const yearEndAmount = parseFloat(document.getElementById('yearEndAmount').value) || 0;
+        
+        if ((bonusType === 'midYear' && midYearAmount <= 0) || 
+            (bonusType === 'yearEnd' && yearEndAmount <= 0) || 
+            (bonusType === 'both' && (midYearAmount <= 0 || yearEndAmount <= 0))) {
+            showError('Please enter valid bonus amounts.');
+            return;
         }
+    }
+    
+    if (loanAmount <= 0 || previousBalance < 0) {
+        showError('Please fill out all required fields with valid values.');
+        return;
+    }
+
+    // Prepare form data
+    const formData = {
+        cbNumber: document.getElementById('cbNumber').value,
+        loanType: loanType,
+        loanAmount: loanAmount,
+        previousBalance: previousBalance,
+        newBalance: parseFloat(document.getElementById('newBalance').value) || 0,
+        serviceFee: parseFloat(document.getElementById('serviceFee').value) || 0,
+        processingFee: parseFloat(document.getElementById('processingFee').value) || 0,
+        totalDeductions: parseFloat(document.getElementById('totalDeductions').value) || 0,
+        totalLoanReceived: parseFloat(document.getElementById('totalLoan').value) || 0,
+        totalOrAmount: parseFloat(document.getElementById('totalOrAmount').value) || 0,
+        takeHomeAmount: parseFloat(document.getElementById('takeHomeAmount').value) || 0,
+        submit: true // This flag tells backend to approve the loan
+    };
+    
+    // Add loan-type specific fields
+    if (loanType === 'salary') {
+        formData.loanApplicationType = document.querySelector('input[name="loanApplicationType"]:checked').value;
+        formData.memberFee = parseFloat(document.getElementById('memberFee').value) || 0;
+        formData.shareCapital = parseFloat(document.getElementById('shareCapital').value) || 0;
+        formData.bayanihanSavings = parseFloat(document.getElementById('bayanihanSavings').value) || 0;
+    } else {
+        formData.bonusType = document.querySelector('input[name="bonusType"]:checked').value;
+        formData.midYearAmount = parseFloat(document.getElementById('midYearAmount').value) || 0;
+        formData.yearEndAmount = parseFloat(document.getElementById('yearEndAmount').value) || 0;
+        formData.midYearInterest = parseFloat(document.getElementById('midYearInterest').value) || 0;
+        formData.yearEndInterest = parseFloat(document.getElementById('yearEndInterest').value) || 0;
+        formData.totalInterest = parseFloat(document.getElementById('totalInterest').value) || 0;
+        formData.cbu = parseFloat(document.getElementById('cbu').value) || 0;
+        formData.interestFee = parseFloat(document.getElementById('interestFee').value) || 0;
+    }
+
+    console.log('📤 Submitting form data:', formData);
+
+    try {
+        const response = await fetch('/admin/submit-salary-bonus-loan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+        
+        const result = await response.json();
+        
+        console.log('📥 Server response:', result);
+        
+        if (result.success) {
+            alert(result.message || 'Loan application computed, submitted, and approved successfully!');
+            // Redirect based on loan type
+            if (loanType === 'salary') {
+                window.location.href = '/admin/salary_bonuses_loans';
+            } else {
+                window.location.href = '/admin/salary_bonuses_loans';
+            }
+        } else {
+            showError(result.message || 'Failed to submit loan.');
+        }
+    } catch (error) {
+        console.error('❌ Error submitting loan:', error);
+        showError('Failed to submit loan. Please try again.');
+    }
+}
+
+// Helper functions
+function showError(message) {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+    errorDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function clearError() {
+    const errorDiv = document.getElementById('errorMessage');
+    errorDiv.textContent = '';
+    errorDiv.style.display = 'none';
+}
 
         // On page load
         window.onload = () => {

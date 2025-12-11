@@ -101,6 +101,7 @@
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             transition: transform 0.3s ease;
+            position: relative;
         }
         
         .stat-card:hover {
@@ -144,6 +145,8 @@
         .payment-icon { background-color: rgba(76, 175, 80, 0.15); color: #4caf50; }
         .savings-icon { background-color: rgba(33, 150, 243, 0.15); color: #2196f3; }
         .due-icon { background-color: rgba(244, 67, 54, 0.15); color: #f44336; }
+        .balance-icon { background-color: rgba(156, 39, 176, 0.15); color: #9c27b0; }
+        .member-savings-icon { background-color: rgba(0, 150, 136, 0.15); color: #009688; }
         
         .dashboard-sections {
             display: grid;
@@ -273,6 +276,158 @@
             display: inline-block;
             margin-top: 10px;
         }
+
+        /* Savings Computation Button Styles */
+        .savings-info-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: 1px solid #009688;
+            color: #009688;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .savings-info-btn:hover {
+            background: #009688;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1a3a6a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-title i {
+            color: #009688;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .close-modal:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .savings-breakdown {
+            margin-bottom: 20px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-label {
+            color: #555;
+            font-size: 14px;
+        }
+
+        .breakdown-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .breakdown-total {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #009688;
+        }
+
+        .breakdown-total .breakdown-label {
+            font-weight: 600;
+            color: #1a3a6a;
+            font-size: 16px;
+        }
+
+        .breakdown-total .breakdown-value {
+            font-size: 18px;
+            color: #009688;
+        }
+
+        .savings-note {
+            background: #e8f5e8;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 13px;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .savings-note i {
+            margin-right: 8px;
+        }
         
         @media (max-width: 1024px) {
             .dashboard-sections {
@@ -296,6 +451,11 @@
             .stats-container {
                 grid-template-columns: 1fr 1fr;
             }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -311,6 +471,14 @@
             
             .payment-methods {
                 flex-direction: column;
+            }
+
+            .savings-info-btn {
+                top: 10px;
+                right: 10px;
+                width: 20px;
+                height: 20px;
+                font-size: 10px;
             }
         }
     </style>
@@ -350,6 +518,35 @@
                 </div>
                 <div class="stat-value">₱<%= typeof amountPaid !== 'undefined' ? amountPaid.toLocaleString('en-PH') : '0' %></div>
                 <div class="stat-description"><%= typeof paymentPercentage !== 'undefined' ? paymentPercentage + '% of total loan' : '0% of total loan' %></div>
+            </div>
+            
+            <!-- New Balance Loan Card -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Balance Loan</div>
+                    <div class="stat-icon balance-icon">⚖️</div>
+                </div>
+                <div class="stat-value">₱<%= typeof balanceLoan !== 'undefined' ? balanceLoan.toLocaleString('en-PH') : '0' %></div>
+                <div class="stat-description">Remaining loan balance</div>
+            </div>
+            
+            <!-- New Member Savings Card with Info Button -->
+            <div class="stat-card">
+                <button class="savings-info-btn" onclick="showSavingsComputation()" title="View Savings Computation">
+                    i
+                </button>
+                <div class="stat-header">
+                    <div class="stat-title">Member Savings</div>
+                    <div class="stat-icon member-savings-icon">🏦</div>
+                </div>
+                <div class="stat-value">₱<%= typeof memberSavings !== 'undefined' ? memberSavings.toLocaleString('en-PH') : '0' %></div>
+                <div class="stat-description">
+                    <% if (typeof monthlySavingsIncrease !== 'undefined' && monthlySavingsIncrease > 0) { %>
+                        +₱<%= monthlySavingsIncrease.toLocaleString('en-PH') %> monthly
+                    <% } else { %>
+                        Total savings balance
+                    <% } %>
+                </div>
             </div>
             
             <div class="stat-card">
@@ -484,6 +681,43 @@
             </div>
         </div>
     </div>
+
+    <!-- Savings Computation Modal -->
+    <div class="modal" id="savingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <i class="fas fa-calculator"></i>
+                    Savings Computation
+                </h2>
+                <button class="close-modal" onclick="closeModal('savingsModal')">&times;</button>
+            </div>
+            <div class="savings-breakdown">
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Total Deductions from Loans:</span>
+                    <span class="breakdown-value" id="totalDeductions">₱0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Total OR Amount:</span>
+                    <span class="breakdown-value" id="totalOrAmount">₱0.00</span>
+                </div>
+                <div class="breakdown-item">
+                    <span class="breakdown-label">Additional Savings:</span>
+                    <span class="breakdown-value" id="additionalSavings">₱0.00</span>
+                </div>
+                <div class="breakdown-total">
+                    <div class="breakdown-item">
+                        <span class="breakdown-label">Total Member Savings:</span>
+                        <span class="breakdown-value" id="totalSavings">₱0.00</span>
+                    </div>
+                </div>
+                <div class="savings-note">
+                    <i class="fas fa-info-circle"></i>
+                    Your savings are calculated from loan deductions and additional contributions.
+                </div>
+            </div>
+        </div>
+    </div>
     
     <script>
         // Auto-refresh data every 60 seconds
@@ -496,6 +730,70 @@
                     // You can implement DOM updates here if needed
                 });
         }, 60000);
+
+        // Show savings computation modal
+        function showSavingsComputation() {
+            // Fetch savings breakdown data
+            fetch('/member/savings-breakdown')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const breakdown = data.data.breakdown;
+                        
+                        // Update modal with breakdown data
+                        document.getElementById('totalDeductions').textContent = 
+                            '₱' + (breakdown.totalDeductions || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+                        
+                        document.getElementById('totalOrAmount').textContent = 
+                            '₱' + (breakdown.totalOrAmount || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+                        
+                        document.getElementById('additionalSavings').textContent = 
+                            '₱' + (breakdown.additionalSavings || 0).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+                        
+                        document.getElementById('totalSavings').textContent = 
+                            '₱' + data.data.totalSavings.toLocaleString('en-PH', { minimumFractionDigits: 2 });
+                        
+                        // Show modal
+                        document.getElementById('savingsModal').style.display = 'flex';
+                    } else {
+                        alert('Failed to load savings breakdown');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching savings breakdown:', error);
+                    // Show default values if API fails
+                    document.getElementById('totalDeductions').textContent = '₱0.00';
+                    document.getElementById('totalOrAmount').textContent = '₱0.00';
+                    document.getElementById('additionalSavings').textContent = '₱0.00';
+                    document.getElementById('totalSavings').textContent = 
+                        '₱' + (<%= typeof memberSavings !== 'undefined' ? memberSavings : 0 %>).toLocaleString('en-PH', { minimumFractionDigits: 2 });
+                    
+                    document.getElementById('savingsModal').style.display = 'flex';
+                });
+        }
+
+        // Close modal function
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('savingsModal');
+            if (event.target === modal) {
+                closeModal('savingsModal');
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal('savingsModal');
+            }
+        });
     </script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </body>
 </html>

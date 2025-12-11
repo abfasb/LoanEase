@@ -798,6 +798,8 @@ exports.getSalaryBonusesLoans = async (req, res) => {
     }
 };
 
+// adminController.js - Updated submitSalaryBonusLoan method
+
 exports.submitSalaryBonusLoan = async (req, res) => {
     try {
         if (!req.session?.user || req.session.user.role !== 'admin') {
@@ -812,6 +814,9 @@ exports.submitSalaryBonusLoan = async (req, res) => {
             interestFee, totalOrAmount, takeHomeAmount, submit
         } = req.body;
 
+        console.log('📌 Received loan submission:', { cbNumber, loanType, submit });
+
+        // Validate required fields
         if (!cbNumber || !isValidNumber(loanAmount, false) || !isValidNumber(previousBalance, false)) {
             return res.status(400).json({
                 success: false,
@@ -819,6 +824,7 @@ exports.submitSalaryBonusLoan = async (req, res) => {
             });
         }
 
+        // Prepare transaction data
         const transactionData = {
             cb_number: cbNumber,
             loan_type: loanType,
@@ -848,26 +854,32 @@ exports.submitSalaryBonusLoan = async (req, res) => {
             })
         };
 
+        // Step 1: Save or update the transaction
+        console.log('💾 Saving transaction data...');
         const transactionResult = await new Promise((resolve, reject) => {
             Loan.getSalaryBonusTransaction(cbNumber, (err, existingTransaction) => {
                 if (err) {
-                    console.error('Error checking existing transaction:', err);
+                    console.error('❌ Error checking existing transaction:', err);
                     reject(new Error(`Failed to check existing transaction: ${err.message}`));
                 } else if (existingTransaction) {
+                    console.log('📝 Updating existing transaction...');
                     Loan.updateSalaryBonusTransaction(transactionData, (err) => {
                         if (err) {
-                            console.error('Error updating transaction:', err);
+                            console.error('❌ Error updating transaction:', err);
                             reject(new Error(`Failed to update transaction: ${err.message}`));
                         } else {
+                            console.log('✅ Transaction updated successfully');
                             resolve('Transaction updated successfully');
                         }
                     });
                 } else {
+                    console.log('📝 Creating new transaction...');
                     Loan.createSalaryBonusTransaction(transactionData, (err) => {
                         if (err) {
-                            console.error('Error creating transaction:', err);
+                            console.error('❌ Error creating transaction:', err);
                             reject(new Error(`Failed to create transaction: ${err.message}`));
                         } else {
+                            console.log('✅ Transaction created successfully');
                             resolve('Transaction created successfully');
                         }
                     });
@@ -875,24 +887,45 @@ exports.submitSalaryBonusLoan = async (req, res) => {
             });
         });
 
-        const statusResult = submit ? await new Promise((resolve, reject) => {
-            Loan.updateLoanApplicationStatus(cbNumber, 'Approved', (err) => {
-                if (err) {
-                    console.error('Error updating loan status:', err);
-                    reject(new Error(`Failed to update loan status: ${err.message}`));
-                } else {
-                    resolve('Loan approved successfully');
-                }
+        // Step 2: Update application status to Approved if submit is true
+        let statusResult = 'No status update required';
+        if (submit) {
+            console.log('🔄 Updating loan application status to Approved...');
+            statusResult = await new Promise((resolve, reject) => {
+                // Update the salary_bonuses_loans table status
+                const updateQuery = `
+                    UPDATE salary_bonuses_loans 
+                    SET application_status = 'Approved',
+                        last_updated = NOW()
+                    WHERE cb_number = ?
+                `;
+                
+                db.query(updateQuery, [cbNumber], (err, result) => {
+                    if (err) {
+                        console.error('❌ Error updating loan status:', err);
+                        reject(new Error(`Failed to update loan status: ${err.message}`));
+                    } else if (result.affectedRows === 0) {
+                        console.warn('⚠️ No loan application found to approve');
+                        reject(new Error('No loan application found for this CB Number'));
+                    } else {
+                        console.log('✅ Loan application status updated to Approved');
+                        resolve('Loan approved successfully');
+                    }
+                });
             });
-        }) : 'No status update required';
+        }
 
+        console.log('✅ Complete:', transactionResult, statusResult);
+        
         res.json({
             success: true,
-            message: `${transactionResult}. ${statusResult}`,
-            action: 'submitted'
+            message: submit ? 
+                'Loan computed, submitted, and approved successfully!' : 
+                'Loan computed and saved successfully!',
+            action: submit ? 'approved' : 'saved'
         });
     } catch (error) {
-        console.error('Error processing salary/bonus loan:', error);
+        console.error('❌ Error processing salary/bonus loan:', error);
         res.status(500).json({
             success: false,
             message: `Error processing loan: ${error.message}`

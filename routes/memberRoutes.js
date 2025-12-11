@@ -68,4 +68,7 @@ router.get('/payment-method', isAuthenticatedMember, (req, res) => {
 // Financial Forecast Route
 router.get('/financial-forecast', isAuthenticatedMember, memberController.getFinancialForecast);
 
+// Add this route for savings breakdown
+router.get('/savings-breakdown', memberController.getSavingsBreakdown);
+
 module.exports = router;
